@@ -4,9 +4,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Jaycso/transit-IOMAPI/api"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/httprate"
+	log "github.com/sirupsen/logrus"
 )
 
 func Handler(r *chi.Mux) {
@@ -18,7 +20,12 @@ func Handler(r *chi.Mux) {
 	r.Use(middleware.Timeout(30 * time.Second))
 
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong"))
+		_, err := w.Write([]byte("pong"))
+		if err != nil {
+			log.Error(err)
+			api.InternalErrorHandler(w)
+			return
+		}
 	})
 
 	r.Route("latestTimetableVersion", func(router chi.Router) {
