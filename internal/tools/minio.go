@@ -1,8 +1,7 @@
-package minio
+package tools
 
 import (
 	"context"
-	"github.com/Jaycso/transit-IOMAPI/api"
 	"os"
 
 	"github.com/minio/minio-go/v7"
@@ -72,13 +71,11 @@ func GetLatestVersionID(bucketName string, objectName string) (versionID string,
 	return attributes.VersionID, nil
 }
 
-func GetLatestTimetable(bucketName string, objectName string) (timetable []byte, err error) {
+func GetLatestTimetable(bucketName string, objectName string) (timetable *minio.Object, err error) {
 	object, err := c.GetObject(ctx, bucketName, objectName, minio.GetObjectOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	timetable := object.Read()
-
-	return timetable, nil
+	return object, nil
 }

@@ -5,24 +5,15 @@ import (
 	"net/http"
 
 	"github.com/Jaycso/transit-IOMAPI/api"
-	"github.com/Jaycso/transit-IOMAPI/internal/minio"
-	"github.com/gorilla/schema"
+	"github.com/Jaycso/transit-IOMAPI/internal/tools"
+	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
 )
 
-func getVersionID(w http.ResponseWriter, r *http.Request) {
-	params := api.GetVersionIDParams{}
-	decoder := schema.NewDecoder()
+func getVersionIDByName(w http.ResponseWriter, r *http.Request) {
+	timetableName := chi.URLParam(r, "name")
 
-	err := decoder.Decode(&params, r.URL.Query())
-
-	if err != nil {
-		log.Error(err)
-		api.InternalErrorHandler(w)
-		return
-	}
-
-	versionID, err := minio.GetLatestVersionID("timetables", params.TimetableName)
+	versionID, err := tools.GetLatestVersionID("timetables", timetableName)
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

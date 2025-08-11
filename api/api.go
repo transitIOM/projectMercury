@@ -2,21 +2,14 @@ package api
 
 import (
 	"encoding/json"
-	log "github.com/sirupsen/logrus"
 	"net/http"
-)
 
-type GetVersionIDParams struct {
-	TimetableName string
-}
+	log "github.com/sirupsen/logrus"
+)
 
 type GetVersionIDResponse struct {
 	Code    int
 	Version string
-}
-
-type GetTimetableParams struct {
-	TimetableName string
 }
 
 type GetTimetableResponse struct {
