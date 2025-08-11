@@ -2,6 +2,7 @@ package minio
 
 import (
 	"context"
+	"github.com/Jaycso/transit-IOMAPI/api"
 	"os"
 
 	"github.com/minio/minio-go/v7"
@@ -41,7 +42,6 @@ func init() {
 
 type bucketOptions struct {
 	name              string
-	ctx               context.Context
 	makeBucketOptions minio.MakeBucketOptions
 	versioningConfig  minio.BucketVersioningConfiguration
 }
@@ -70,4 +70,15 @@ func GetLatestVersionID(bucketName string, objectName string) (versionID string,
 	}
 
 	return attributes.VersionID, nil
+}
+
+func GetLatestTimetable(bucketName string, objectName string) (timetable []byte, err error) {
+	object, err := c.GetObject(ctx, bucketName, objectName, minio.GetObjectOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	timetable := object.Read()
+
+	return timetable, nil
 }

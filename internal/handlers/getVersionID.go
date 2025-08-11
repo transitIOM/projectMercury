@@ -10,8 +10,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func getLatestVersionID(w http.ResponseWriter, r *http.Request) {
-	params := api.LatestTimetableVersionIDParams{}
+func getVersionID(w http.ResponseWriter, r *http.Request) {
+	params := api.GetVersionIDParams{}
 	decoder := schema.NewDecoder()
 
 	err := decoder.Decode(&params, r.URL.Query())
@@ -29,7 +29,7 @@ func getLatestVersionID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := api.LatestTimetableVersionIDResponse{
+	response := api.GetVersionIDResponse{
 		Version: versionID,
 		Code:    http.StatusOK,
 	}

@@ -2,14 +2,15 @@ package api
 
 import (
 	"encoding/json"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
-type LatestTimetableVersionIDParams struct {
+type GetVersionIDParams struct {
 	TimetableName string
 }
 
-type LatestTimetableVersionIDResponse struct {
+type GetVersionIDResponse struct {
 	Code    int
 	Version string
 }
@@ -21,6 +22,17 @@ type GetTimetableParams struct {
 type GetTimetableResponse struct {
 	VersionID string
 	data      []byte
+	Code      int
+}
+
+type PutTimetableParams struct {
+	TimetableName string
+	data          []byte
+}
+
+type PutTimetableResponse struct {
+	VersionID string
+	Code      int
 }
 
 type Error struct {
@@ -37,7 +49,11 @@ func writeError(w http.ResponseWriter, code int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 
-	json.NewEncoder(w).Encode(resp)
+	err := json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		log.Errorf("Error writing response: %v", err)
+		InternalErrorHandler(w)
+	}
 }
 
 var (

@@ -28,9 +28,16 @@ func Handler(r *chi.Mux) {
 		}
 	})
 
-	r.Route("latestTimetableVersion", func(router chi.Router) {
+	apiRouter := chi.NewRouter()
+
+	// dont fuck with this
+	apiRouter.Route("timetable", func(router chi.Router) {
 		r.Use(httprate.LimitByIP(5, time.Minute))
 
-		r.Get("/latestTimetableVersion", getLatestVersionID)
+		r.Get("/version", getVersionID)
+		r.Get("/{name}", getTimetableByName)
+		r.Put("/{name}", putTimetableByName)
 	})
+
+	r.Mount("/api", apiRouter)
 }
