@@ -31,14 +31,14 @@ func Handler(r *chi.Mux) {
 	apiRouter := chi.NewRouter()
 
 	// dont fuck with this
-	apiRouter.Route("timetable", func(router chi.Router) {
-		r.Use(httprate.LimitByIP(5, time.Minute))
+	apiRouter.Route("/timetable", func(router chi.Router) {
+		apiRouter.Use(httprate.LimitByIP(5, time.Minute))
 		// requires the timetable name to be provided ending in .json
-		r.Use(intmiddleware.ValidateJsonFilename)
+		apiRouter.Use(intmiddleware.ValidateJsonFilename)
 
-		r.Get("/version/?={name}", getVersionIDByName)
-		r.Get("/?={name}", getTimetableByName)
-		r.Put("/?={name}", putTimetableByName)
+		apiRouter.Get("/version/{name}", getVersionIDByName)
+		apiRouter.Get("/{name}", getTimetableByName)
+		apiRouter.Put("/{name}", putTimetableByName)
 	})
 
 	r.Mount("/api", apiRouter)
