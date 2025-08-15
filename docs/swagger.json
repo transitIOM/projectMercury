@@ -1,0 +1,143 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is an API for the transitIOM application",
+        "title": "transitIOMAPI",
+        "contact": {
+            "name": "Jayden T",
+            "email": "support@jaydent.uk"
+        },
+        "version": "1.0"
+    },
+    "basePath": "/api/v1",
+    "paths": {
+        "/timetable/version/{name}": {
+            "get": {
+                "description": "Returns the JSON timetable and its version ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "timetable"
+                ],
+                "summary": "Takes a timetable name and returns the version ID",
+                "operationId": "getVersionIDByName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "json",
+                        "description": "The name of the timetable you want (including .json)",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the latest version ID",
+                        "schema": {
+                            "$ref": "#/definitions/api.GetVersionIDResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid timetable name",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/timetable/{name}": {
+            "get": {
+                "description": "Returns the JSON timetable and its version ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "timetable"
+                ],
+                "summary": "Takes a timetable name and returns the latest JSON timetable data with its corresponding version ID",
+                "operationId": "getTimetableByName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "json",
+                        "description": "The name of the timetable you want (including .json)",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the latest timetable with version ID",
+                        "schema": {
+                            "$ref": "#/definitions/api.GetTimetableResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid timetable name",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.Error": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.GetTimetableResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                },
+                "versionID": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.GetVersionIDResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

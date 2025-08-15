@@ -1,0 +1,96 @@
+basePath: /api/v1
+definitions:
+  api.Error:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  api.GetTimetableResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          format: int32
+          type: integer
+        type: array
+      versionID:
+        type: string
+    type: object
+  api.GetVersionIDResponse:
+    properties:
+      code:
+        type: integer
+      version:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@jaydent.uk
+    name: Jayden T
+  description: This is an API for the transitIOM application
+  title: transitIOMAPI
+  version: "1.0"
+paths:
+  /timetable/{name}:
+    get:
+      description: Returns the JSON timetable and its version ID
+      operationId: getTimetableByName
+      parameters:
+      - description: The name of the timetable you want (including .json)
+        format: json
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns the latest timetable with version ID
+          schema:
+            $ref: '#/definitions/api.GetTimetableResponse'
+        "400":
+          description: Invalid timetable name
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Takes a timetable name and returns the latest JSON timetable data with
+        its corresponding version ID
+      tags:
+      - timetable
+  /timetable/version/{name}:
+    get:
+      description: Returns the JSON timetable and its version ID
+      operationId: getVersionIDByName
+      parameters:
+      - description: The name of the timetable you want (including .json)
+        format: json
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns the latest version ID
+          schema:
+            $ref: '#/definitions/api.GetVersionIDResponse'
+        "400":
+          description: Invalid timetable name
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Takes a timetable name and returns the version ID
+      tags:
+      - timetable
+swagger: "2.0"

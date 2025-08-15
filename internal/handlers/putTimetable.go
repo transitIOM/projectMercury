@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/Jaycso/transit-IOMAPI/api"
@@ -12,6 +13,7 @@ import (
 
 func putTimetableByName(w http.ResponseWriter, r *http.Request) {
 	timetableName := chi.URLParam(r, "name")
+	timetableName = fmt.Sprintf("timetable%s", ".json")
 	jsonBody := r.Body
 
 	versionID, err := tools.PutLatestTimetable("timetables", timetableName, jsonBody)
