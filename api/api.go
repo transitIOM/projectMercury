@@ -14,13 +14,8 @@ type GetVersionIDResponse struct {
 
 type GetTimetableResponse struct {
 	VersionID string
-	data      []byte
+	Data      json.RawMessage
 	Code      int
-}
-
-type PutTimetableParams struct {
-	TimetableName string
-	data          []byte
 }
 
 type PutTimetableResponse struct {
@@ -45,7 +40,6 @@ func writeError(w http.ResponseWriter, code int, message string) {
 	err := json.NewEncoder(w).Encode(resp)
 	if err != nil {
 		log.Errorf("Error writing response: %v", err)
-		InternalErrorHandler(w)
 	}
 }
 

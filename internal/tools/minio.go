@@ -2,8 +2,10 @@ package tools
 
 import (
 	"context"
+	"io"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	log "github.com/sirupsen/logrus"
@@ -15,6 +17,10 @@ var (
 )
 
 func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
 
 	accessKey := os.Getenv("MINIO_ACCESS_KEY")
 	secretKey := os.Getenv("MINIO_SECRET_KEY")
@@ -22,7 +28,6 @@ func init() {
 
 	ctx = context.Background()
 
-	var err error
 	c, err = minio.New(endpoint, &minio.Options{
 		Secure: false,
 		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
@@ -71,11 +76,28 @@ func GetLatestVersionID(bucketName string, objectName string) (versionID string,
 	return attributes.VersionID, nil
 }
 
-func GetLatestTimetable(bucketName string, objectName string) (timetable *minio.Object, err error) {
+func GetLatestTimetable(bucketName string, objectName string) (timetableData []byte, versionID string, err error) {
 	object, err := c.GetObject(ctx, bucketName, objectName, minio.GetObjectOptions{})
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return object, nil
+	ID, err := GetLatestVersionID(bucketName, objectName)
+	if err != nil {
+		return nil, "", err
+	}
+
+	defer object.Close()
+
+	byteStream, err := io.ReadAll(object)
+
+	return byteStream, ID, nil
+}
+
+func PutLatestTimetable(bucketName string, objectName string, reader io.Reader) (versionID string, err error) {
+	uploadInfo, err := c.PutObject(ctx, bucketName, objectName, reader, -1, minio.PutObjectOptions{ContentType: "application/json"})
+	if err != nil {
+		return "", err
+	}
+	return uploadInfo.VersionID, nil
 }

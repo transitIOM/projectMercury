@@ -5,24 +5,17 @@ import (
 	"net/http"
 
 	"github.com/Jaycso/transit-IOMAPI/internal/handlers"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/docgen"
 	log "github.com/sirupsen/logrus"
-
-	"github.com/joho/godotenv"
 )
-
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-}
 
 func main() {
 	log.SetReportCaller(true)
 	r := chi.NewRouter()
 	handlers.Handler(r)
 
+	docgen.PrintRoutes(r)
 	fmt.Println("Starting transit-IOMAPI service...")
 
 	err := http.ListenAndServe(":8090", r)

@@ -6,7 +6,7 @@ import (
 
 	"github.com/Jaycso/transit-IOMAPI/api"
 	"github.com/Jaycso/transit-IOMAPI/internal/tools"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	log "github.com/sirupsen/logrus"
 )
 
