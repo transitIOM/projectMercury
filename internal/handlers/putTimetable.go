@@ -18,7 +18,7 @@ func putTimetableByName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer func(file multipart.File) {
-		err := file.Close()
+		err = file.Close()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -30,6 +30,12 @@ func putTimetableByName(w http.ResponseWriter, r *http.Request) {
 	}
 	if fileHeader.Filename == "" {
 		err = errors.New("filename is empty")
+		api.RequestErrorHandler(w, err)
+		return
+	}
+	filetype := fileHeader.Header.Get("Content-Type")
+	if filetype != "application/zip" {
+		err = errors.New("unsupported file type: " + filetype)
 		api.RequestErrorHandler(w, err)
 		return
 	}
