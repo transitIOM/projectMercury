@@ -15,6 +15,7 @@ require (
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
+	github.com/adelowo/gulter v0.0.0-20250318001022-9299a9367f80 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
