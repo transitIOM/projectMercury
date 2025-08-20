@@ -66,7 +66,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "file",
-                        "description": "A GTFS schedule .zip package (must be .zip)",
+                        "description": "A GTFS schedule package (must be .zip)",
                         "name": "GTFSSchedule",
                         "in": "formData",
                         "required": true

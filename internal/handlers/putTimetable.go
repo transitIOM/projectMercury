@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 
@@ -17,7 +18,7 @@ import (
 // @description	Updates object store with latest GTFS Schedule. Only `.zip` files are allowed.
 // @accept			multipart/form-data
 // @produce		json
-// @param			GTFSSchedule	formData	file						true	"A GTFS schedule .zip package (must be .zip)"
+// @param			GTFSSchedule	formData	file						true	"A GTFS schedule package (must be .zip)"
 // @success		200				{object}	api.PutTimetableResponse	"File successfully uploaded"
 // @failure		400				{object}	api.Error					"Invalid file type"
 // @failure		500				{object}	api.Error					"Internal server error"
@@ -34,14 +35,14 @@ func putGTFSSchedule(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 	}(file)
-	if fileHeader.Size == 0 {
-		err = errors.New("file size is zero")
+	filetype := fileHeader.Header.Get("Content-Type")
+	if (filetype != "application/zip") && (filetype != "application/x-zip-compressed") {
+		err = errors.New(fmt.Sprintf("unsupported file type: %s. Please upload a GTFS schedule .zip package.", filetype))
 		api.RequestErrorHandler(w, err)
 		return
 	}
-	filetype := fileHeader.Header.Get("Content-Type")
-	if (filetype != "application/zip") && (filetype != "application/x-zip-compressed") {
-		err = errors.New("unsupported file type: " + filetype)
+	if fileHeader.Size == 0 {
+		err = errors.New("file size is zero")
 		api.RequestErrorHandler(w, err)
 		return
 	}

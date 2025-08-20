@@ -67,7 +67,7 @@ paths:
         are allowed.
       operationId: putGTFSSchedule
       parameters:
-      - description: A GTFS schedule .zip package (must be .zip)
+      - description: A GTFS schedule package (must be .zip)
         in: formData
         name: GTFSSchedule
         required: true
