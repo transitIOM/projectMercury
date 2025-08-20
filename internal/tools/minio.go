@@ -94,8 +94,8 @@ func GetLatestTimetable(bucketName string, objectName string) (timetableData []b
 	return byteStream, ID, nil
 }
 
-func PutLatestTimetable(bucketName string, objectName string, reader io.Reader) (versionID string, err error) {
-	uploadInfo, err := c.PutObject(ctx, bucketName, objectName, reader, -1, minio.PutObjectOptions{ContentType: "application/json"})
+func PutLatestTimetable(bucketName string, objectName string, reader io.Reader, fileSize int64) (versionID string, err error) {
+	uploadInfo, err := c.PutObject(ctx, bucketName, objectName, reader, -1, minio.PutObjectOptions{ContentType: "application/zip"})
 	if err != nil {
 		return "", err
 	}

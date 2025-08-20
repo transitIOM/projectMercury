@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"mime/multipart"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -14,7 +15,7 @@ type GetVersionIDResponse struct {
 
 type GetTimetableResponse struct {
 	VersionID string
-	Data      json.RawMessage
+	File      multipart.File
 	Code      int
 }
 

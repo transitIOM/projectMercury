@@ -34,7 +34,7 @@ func getTimetableByName(w http.ResponseWriter, r *http.Request) {
 
 	response := api.GetTimetableResponse{
 		VersionID: versionID,
-		Data:      timetable,
+		File:      timetable,
 		Code:      http.StatusOK,
 	}
 
