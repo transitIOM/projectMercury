@@ -11,6 +11,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// @id				putTimetableByName
+// @tags			timetable
+// @summary		Takes a GTFS .zip file and uploads it to the object store
+// @description	Updates object store with latest GTFS data
+// @produce		json
+// @param			file	body		file						true	"A GTFS .zip package"
+// @success		200		{object}	api.PutTimetableResponse	"Returns the latest timetable with version ID"
+// @failure		400		{object}	api.Error					"Invalid timetable name"
+// @failure		500		{object}	api.Error					"Internal server error"
+// @router			/timetable/{name} [put]
 func putTimetableByName(w http.ResponseWriter, r *http.Request) {
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
