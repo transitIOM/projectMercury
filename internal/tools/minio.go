@@ -2,8 +2,11 @@ package tools
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"net/url"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/minio/minio-go/v7"
@@ -12,8 +15,10 @@ import (
 )
 
 var (
-	c   *minio.Client
-	ctx context.Context
+	c          *minio.Client
+	ctx        context.Context
+	bucketName = "gtfs"
+	objectName = "GTFSSchedule.zip"
 )
 
 func init() {
@@ -37,7 +42,7 @@ func init() {
 	}
 
 	bucketOpt := bucketOptions{
-		name:              "timetables",
+		name:              bucketName,
 		makeBucketOptions: minio.MakeBucketOptions{},
 		versioningConfig:  minio.BucketVersioningConfiguration{Status: "Enabled"},
 	}
@@ -66,7 +71,10 @@ func makeBucket(options bucketOptions) {
 	}
 }
 
-func GetLatestVersionID(bucketName string, objectName string) (versionID string, err error) {
+func GetLatestGTFSScheduleVersionID() (versionID string, err error) {
+
+	bucketName := "gtfs"
+	objectName := "GTFSSchedule.zip"
 
 	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
 	if err != nil {
@@ -76,26 +84,31 @@ func GetLatestVersionID(bucketName string, objectName string) (versionID string,
 	return attributes.VersionID, nil
 }
 
-func GetLatestTimetable(bucketName string, objectName string) (timetableData []byte, versionID string, err error) {
-	object, err := c.GetObject(ctx, bucketName, objectName, minio.GetObjectOptions{})
+func GetLatestGTFSScheduleURL() (downloadURL *url.URL, versionID string, err error) {
+
+	bucketName := "gtfs"
+	objectName := "GTFSSchedule.zip"
+	expiryTime := 30 * time.Second
+	reqParams := make(url.Values)
+	reqParams.Set("response-content-disposition", fmt.Sprintf("attachment; filename=%s", objectName))
+	reqParams.Set("response-content-type", "application/zip")
+
+	downloadURL, err = c.PresignedGetObject(ctx, bucketName, objectName, expiryTime, reqParams)
 	if err != nil {
 		return nil, "", err
 	}
 
-	ID, err := GetLatestVersionID(bucketName, objectName)
+	ID, err := GetLatestGTFSScheduleVersionID()
 	if err != nil {
 		return nil, "", err
 	}
 
-	defer object.Close()
-
-	byteStream, err := io.ReadAll(object)
-
-	return byteStream, ID, nil
+	return downloadURL, ID, nil
 }
 
-func PutLatestTimetable(bucketName string, objectName string, reader io.Reader, fileSize int64) (versionID string, err error) {
-	uploadInfo, err := c.PutObject(ctx, bucketName, objectName, reader, -1, minio.PutObjectOptions{ContentType: "application/zip"})
+func PutLatestGTFSSchedule(reader io.Reader, fileSize int64) (versionID string, err error) {
+
+	uploadInfo, err := c.PutObject(ctx, bucketName, objectName, reader, fileSize, minio.PutObjectOptions{ContentType: "application/zip"})
 	if err != nil {
 		return "", err
 	}

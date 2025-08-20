@@ -5,24 +5,25 @@ import (
 	"errors"
 	"mime/multipart"
 	"net/http"
-  
+
 	log "github.com/sirupsen/logrus"
 	"github.com/transitIOM/projectMercury/api"
 	"github.com/transitIOM/projectMercury/internal/tools"
 )
 
-// @id				putTimetableByName
-// @tags			timetable
-// @summary		Takes a GTFS .zip file and uploads it to the object store
-// @description	Updates object store with latest GTFS data
+// @id				putGTFSSchedule
+// @tags			GTFS Schedule
+// @summary		Takes a GTFS Schedule .zip package and uploads it to the object store
+// @description	Updates object store with latest GTFS Schedule. Only `.zip` files are allowed.
+// @accept			multipart/form-data
 // @produce		json
-// @param			file	body		file						true	"A GTFS .zip package"
-// @success		200		{object}	api.PutTimetableResponse	"Returns the latest timetable with version ID"
-// @failure		400		{object}	api.Error					"Invalid timetable name"
-// @failure		500		{object}	api.Error					"Internal server error"
-// @router			/timetable/{name} [put]
-func putTimetableByName(w http.ResponseWriter, r *http.Request) {
-	file, fileHeader, err := r.FormFile("file")
+// @param			GTFSSchedule	formData	file						true	"A GTFS schedule .zip package (must be .zip)"
+// @success		200				{object}	api.PutTimetableResponse	"File successfully uploaded"
+// @failure		400				{object}	api.Error					"Invalid file type"
+// @failure		500				{object}	api.Error					"Internal server error"
+// @router			/schedule [put]
+func putGTFSSchedule(w http.ResponseWriter, r *http.Request) {
+	file, fileHeader, err := r.FormFile("GTFSSchedule")
 	if err != nil {
 		api.InternalErrorHandler(w)
 		return
@@ -38,19 +39,14 @@ func putTimetableByName(w http.ResponseWriter, r *http.Request) {
 		api.RequestErrorHandler(w, err)
 		return
 	}
-	if fileHeader.Filename == "" {
-		err = errors.New("filename is empty")
-		api.RequestErrorHandler(w, err)
-		return
-	}
 	filetype := fileHeader.Header.Get("Content-Type")
-	if filetype != "application/zip" {
+	if (filetype != "application/zip") && (filetype != "application/x-zip-compressed") {
 		err = errors.New("unsupported file type: " + filetype)
 		api.RequestErrorHandler(w, err)
 		return
 	}
 
-	versionID, err := tools.PutLatestTimetable("timetables", fileHeader.Filename, file, fileHeader.Size)
+	versionID, err := tools.PutLatestGTFSSchedule(file, fileHeader.Size)
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
@@ -58,8 +54,8 @@ func putTimetableByName(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := api.PutTimetableResponse{
-		VersionID: versionID,
 		Code:      http.StatusAccepted,
+		VersionID: versionID,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
