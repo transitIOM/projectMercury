@@ -1,4 +1,4 @@
-module github.com/Jaycso/transit-IOMAPI
+module github.com/transitIOM/projectMercury
 
 go 1.24.3
 
