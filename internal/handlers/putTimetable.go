@@ -5,10 +5,10 @@ import (
 	"errors"
 	"mime/multipart"
 	"net/http"
-
-	"github.com/Jaycso/transit-IOMAPI/api"
-	"github.com/Jaycso/transit-IOMAPI/internal/tools"
+  
 	log "github.com/sirupsen/logrus"
+	"github.com/transitIOM/projectMercury/api"
+	"github.com/transitIOM/projectMercury/internal/tools"
 )
 
 // @id				putTimetableByName

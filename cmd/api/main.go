@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	_ "github.com/Jaycso/transit-IOMAPI/docs"
-	"github.com/Jaycso/transit-IOMAPI/internal/handlers"
 	"github.com/go-chi/chi/v5"
 	log "github.com/sirupsen/logrus"
 	httpSwagger "github.com/swaggo/http-swagger"
+	_ "github.com/transitIOM/projectMercury/docs"
+	"github.com/transitIOM/projectMercury/internal/handlers"
 )
 
 //	@title			transitIOMAPI

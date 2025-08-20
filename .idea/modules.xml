@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/transit-IOMAPI.iml" filepath="$PROJECT_DIR$/.idea/transit-IOMAPI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/transitIOM_project_mercury.iml" filepath="$PROJECT_DIR$/.idea/transitIOM_project_mercury.iml" />
     </modules>
   </component>
 </project>
