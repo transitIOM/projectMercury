@@ -86,9 +86,7 @@ func GetLatestGTFSScheduleVersionID() (versionID string, err error) {
 
 func GetLatestGTFSScheduleURL() (downloadURL *url.URL, versionID string, err error) {
 
-	bucketName := "gtfs"
-	objectName := "GTFSSchedule.zip"
-	expiryTime := 30 * time.Second
+	expiryTime := 5 * time.Minute
 	reqParams := make(url.Values)
 	reqParams.Set("response-content-disposition", fmt.Sprintf("attachment; filename=%s", objectName))
 	reqParams.Set("response-content-type", "application/zip")
