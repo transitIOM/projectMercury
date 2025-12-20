@@ -109,7 +109,7 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/api.Error'
-      summary: Returns the latest  VersionID
+      summary: Returns the latest VersionID
       tags:
       - GTFS Schedule
 swagger: "2.0"
