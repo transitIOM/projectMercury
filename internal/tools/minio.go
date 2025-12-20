@@ -21,6 +21,8 @@ var (
 	objectName = "GTFSSchedule.zip"
 )
 
+// init loads environment variables from a local .env file, reads MINIO_ACCESS_KEY, MINIO_SECRET_KEY, and MINIO_ENDPOINT, initializes the package context and MinIO client, and ensures the configured bucket exists with versioning enabled.
+// It logs a fatal error and exits the process if loading the .env file or creating the MinIO client fails.
 func init() {
 	err := godotenv.Load()
 	if err != nil {
@@ -55,6 +57,10 @@ type bucketOptions struct {
 	versioningConfig  minio.BucketVersioningConfiguration
 }
 
+// makeBucket ensures a bucket exists and applies the provided versioning configuration.
+// It checks for a bucket named by options.name, creates it if it does not exist, and sets
+// its versioning according to options.versioningConfig. Errors encountered while creating
+// the bucket or setting versioning are logged but not returned.
 func makeBucket(options bucketOptions) {
 
 	exists, err := c.BucketExists(ctx, options.name)
@@ -71,6 +77,8 @@ func makeBucket(options bucketOptions) {
 	}
 }
 
+// GetLatestGTFSScheduleVersionID retrieves the version ID of the "GTFSSchedule.zip" object in the "gtfs" bucket.
+// It returns the object's VersionID, or an error if the object's attributes cannot be obtained.
 func GetLatestGTFSScheduleVersionID() (versionID string, err error) {
 
 	bucketName := "gtfs"
@@ -84,6 +92,8 @@ func GetLatestGTFSScheduleVersionID() (versionID string, err error) {
 	return attributes.VersionID, nil
 }
 
+// GetLatestGTFSScheduleURL returns a presigned GET URL for downloading the latest GTFSSchedule.zip and the object's version ID.
+// The returned downloadURL is a presigned URL valid for 30 seconds that forces a ZIP file download named "GTFSSchedule.zip". The returned versionID is the latest VersionID of that object in the "gtfs" bucket. On failure, a non-nil error is returned.
 func GetLatestGTFSScheduleURL() (downloadURL *url.URL, versionID string, err error) {
 
 	bucketName := "gtfs"
@@ -106,6 +116,8 @@ func GetLatestGTFSScheduleURL() (downloadURL *url.URL, versionID string, err err
 	return downloadURL, ID, nil
 }
 
+// PutLatestGTFSSchedule uploads the provided reader as the latest GTFSSchedule.zip to the gtfs bucket.
+// It returns the uploaded object's VersionID on success or an error if the upload fails.
 func PutLatestGTFSSchedule(reader io.Reader, fileSize int64) (versionID string, err error) {
 
 	uploadInfo, err := c.PutObject(ctx, bucketName, objectName, reader, fileSize, minio.PutObjectOptions{ContentType: "application/zip"})

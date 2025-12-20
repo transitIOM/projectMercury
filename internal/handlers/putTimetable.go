@@ -22,7 +22,8 @@ import (
 // @success		200				{object}	api.PutTimetableResponse	"File successfully uploaded"
 // @failure		400				{object}	api.Error					"Invalid file type"
 // @failure		500				{object}	api.Error					"Internal server error"
-// @router			/schedule [put]
+// putGTFSSchedule handles PUT /schedule requests by accepting a GTFS schedule .zip upload and storing it as the latest schedule.
+// It validates the uploaded file's Content-Type (must be "application/zip" or "application/x-zip-compressed") and non-zero size, delegates storage to tools.PutLatestGTFSSchedule, and responds with a JSON payload containing the accepted status code and the stored version ID.
 func putGTFSSchedule(w http.ResponseWriter, r *http.Request) {
 	file, fileHeader, err := r.FormFile("GTFSSchedule")
 	if err != nil {

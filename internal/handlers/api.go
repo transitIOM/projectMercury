@@ -8,6 +8,12 @@ import (
 	"github.com/go-chi/httprate"
 )
 
+// Handler configures the provided root router with global middleware, mounts the API under /api/v1, and registers the /schedule endpoints.
+// The global middleware applied are request ID, logging, panic recovery, trailing-slash stripping, and a 30-second request timeout.
+// The /api/v1/schedule subtree enforces a per-IP rate limit of 5 requests per minute and exposes:
+// GET /version — returns the schedule version ID;
+// GET / — returns the GTFS schedule download URL;
+// PUT / — accepts a GTFS schedule submission.
 func Handler(r *chi.Mux) {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)

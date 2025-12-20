@@ -17,7 +17,9 @@ import (
 // @success		200	{object}	api.GetTimetableResponse	"Returned a download link and versionID"
 // @failure		400	{object}	api.Error					"Invalid timetable name"
 // @failure		500	{object}	api.Error					"Internal server error"
-// @router			/schedule [get]
+// getGTFSScheduleDownloadURL handles GET /schedule and returns a JSON payload containing a download link to the latest GTFS schedule and its version ID.
+// It queries the latest schedule URL and version; on success it responds with HTTP 200 and a JSON api.GetTimetableResponse containing Code, DownloadURL, and VersionID and sets Content-Type to application/json.
+// If retrieving the URL or encoding the response fails, it logs the error and responds with an internal server error.
 func getGTFSScheduleDownloadURL(w http.ResponseWriter, r *http.Request) {
 
 	downloadURL, versionID, err := tools.GetLatestGTFSScheduleURL()
