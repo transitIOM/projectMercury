@@ -11,7 +11,7 @@ import (
 
 // @id				getGTFSScheduleVersionID
 // @tags			GTFS Schedule
-// @summary		Returns the latest  VersionID
+// @summary		Returns the latest VersionID
 // @description	Get the versionID of the latest GTFS Schedule
 // @produce		json
 // @success		200	{object}	api.GetVersionIDResponse	"Returned the version ID"
