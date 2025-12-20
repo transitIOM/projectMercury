@@ -30,7 +30,7 @@
                         }
                     },
                     "400": {
-                        "description": "Invalid timetable name",
+                        "description": "Bad request",
                         "schema": {
                             "$ref": "#/definitions/api.Error"
                         }
