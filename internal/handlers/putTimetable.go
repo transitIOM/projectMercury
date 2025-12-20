@@ -19,7 +19,7 @@ import (
 // @accept			multipart/form-data
 // @produce		json
 // @param			GTFSSchedule	formData	file						true	"A GTFS schedule package (must be .zip)"
-// @success		200				{object}	api.PutTimetableResponse	"File successfully uploaded"
+// @success		202			{object}	api.PutTimetableResponse	"File successfully uploaded"
 // @failure		400				{object}	api.Error					"Invalid file type"
 // @failure		500				{object}	api.Error					"Internal server error"
 // @router			/schedule [put]
@@ -60,6 +60,7 @@ func putGTFSSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.Code)
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
 		log.Error(err)
