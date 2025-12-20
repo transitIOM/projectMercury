@@ -96,7 +96,7 @@
                 "tags": [
                     "GTFS Schedule"
                 ],
-                "summary": "Returns the latest  VersionID",
+                "summary": "Returns the latest VersionID",
                 "operationId": "getGTFSScheduleVersionID",
                 "responses": {
                     "200": {
