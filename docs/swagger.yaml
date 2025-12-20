@@ -11,11 +11,8 @@ definitions:
     properties:
       code:
         type: integer
-      data:
-        items:
-          format: int32
-          type: integer
-        type: array
+      downloadURL:
+        type: string
       versionID:
         type: string
     type: object
@@ -26,30 +23,30 @@ definitions:
       version:
         type: string
     type: object
+  api.PutTimetableResponse:
+    properties:
+      code:
+        type: integer
+      versionID:
+        type: string
+    type: object
 info:
   contact:
     email: support@jaydent.uk
     name: Jayden T
-  description: This is an API for the transitIOM application
-  title: transitIOMAPI
+  description: The transitIOM REST API
+  title: projectMercury
   version: "1.0"
 paths:
-  /timetable/{name}:
+  /schedule:
     get:
-      description: Returns the JSON timetable and its version ID
-      operationId: getTimetableByName
-      parameters:
-      - description: The name of the timetable you want (including .json)
-        format: json
-        in: path
-        name: name
-        required: true
-        type: string
+      description: Returns a link to download GTFSSchedule.zip and the versionID
+      operationId: getGTFSScheduleDownloadURL
       produces:
       - application/json
       responses:
         "200":
-          description: Returns the latest timetable with version ID
+          description: Returned a download link and versionID
           schema:
             $ref: '#/definitions/api.GetTimetableResponse'
         "400":
@@ -60,26 +57,48 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/api.Error'
-      summary: Takes a timetable name and returns the latest JSON timetable data with
-        its corresponding version ID
+      summary: Get a download link for the latest data
       tags:
-      - timetable
-  /timetable/version/{name}:
-    get:
-      description: Returns the JSON timetable and its version ID
-      operationId: getVersionIDByName
+      - GTFS Schedule
+    put:
+      consumes:
+      - multipart/form-data
+      description: Updates object store with latest GTFS Schedule. Only `.zip` files
+        are allowed.
+      operationId: putGTFSSchedule
       parameters:
-      - description: The name of the timetable you want (including .json)
-        format: json
-        in: path
-        name: name
+      - description: A GTFS schedule package (must be .zip)
+        in: formData
+        name: GTFSSchedule
         required: true
-        type: string
+        type: file
       produces:
       - application/json
       responses:
         "200":
-          description: Returns the latest version ID
+          description: File successfully uploaded
+          schema:
+            $ref: '#/definitions/api.PutTimetableResponse'
+        "400":
+          description: Invalid file type
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Takes a GTFS Schedule .zip package and uploads it to the object store
+      tags:
+      - GTFS Schedule
+  /schedule/version:
+    get:
+      description: Get the versionID of the latest GTFS Schedule
+      operationId: getGTFSScheduleVersionID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returned the version ID
           schema:
             $ref: '#/definitions/api.GetVersionIDResponse'
         "400":
@@ -90,7 +109,7 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/api.Error'
-      summary: Takes a timetable name and returns the version ID
+      summary: Returns the latest VersionID
       tags:
-      - timetable
+      - GTFS Schedule
 swagger: "2.0"

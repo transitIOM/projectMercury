@@ -18,13 +18,13 @@ func Handler(r *chi.Mux) {
 	v1 := chi.NewRouter()
 
 	// dont fuck with this
-	v1.Route("/timetable", func(router chi.Router) {
+	v1.Route("/schedule", func(router chi.Router) {
 		router.Use(httprate.LimitByIP(5, time.Minute))
 		// requires the timetable name to be provided ending in .json
 
-		router.Get("/version/{name:^[A-Za-z]+$}", getVersionIDByName)
-		router.Get("/{name:^[A-Za-z]+$}", getTimetableByName)
-		router.Put("/{name:^[A-Za-z]+$}", putTimetableByName)
+		router.Get("/version", getGTFSScheduleVersionID)
+		router.Get("/", getGTFSScheduleDownloadURL)
+		router.Put("/", putGTFSSchedule)
 	})
 
 	//TODO: Need to test endpoints, finish adding swagger comments for documentation, change logging target to a log file

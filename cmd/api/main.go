@@ -11,9 +11,9 @@ import (
 	"github.com/transitIOM/projectMercury/internal/handlers"
 )
 
-//	@title			transitIOMAPI
+//	@title			projectMercury
 //	@version		1.0
-//	@description	This is an API for the transitIOM application
+//	@description	The transitIOM REST API
 
 //	@contact.name	Jayden T
 //	@contact.email	support@jaydent.uk

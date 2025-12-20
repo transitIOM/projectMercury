@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"mime/multipart"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -14,14 +13,14 @@ type GetVersionIDResponse struct {
 }
 
 type GetTimetableResponse struct {
-	VersionID string
-	File      multipart.File
-	Code      int
+	Code        int
+	VersionID   string
+	DownloadURL string
 }
 
 type PutTimetableResponse struct {
-	VersionID string
 	Code      int
+	VersionID string
 }
 
 type Error struct {

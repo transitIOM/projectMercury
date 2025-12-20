@@ -18,32 +18,22 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/timetable/version/{name}": {
+        "/schedule": {
             "get": {
-                "description": "Returns the JSON timetable and its version ID",
+                "description": "Returns a link to download GTFSSchedule.zip and the versionID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "timetable"
+                    "GTFS Schedule"
                 ],
-                "summary": "Takes a timetable name and returns the version ID",
-                "operationId": "getVersionIDByName",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "format": "json",
-                        "description": "The name of the timetable you want (including .json)",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "Get a download link for the latest data",
+                "operationId": "getGTFSScheduleDownloadURL",
                 "responses": {
                     "200": {
-                        "description": "Returns the latest version ID",
+                        "description": "Returned a download link and versionID",
                         "schema": {
-                            "$ref": "#/definitions/api.GetVersionIDResponse"
+                            "$ref": "#/definitions/api.GetTimetableResponse"
                         }
                     },
                     "400": {
@@ -59,34 +49,67 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/timetable/{name}": {
-            "get": {
-                "description": "Returns the JSON timetable and its version ID",
+            },
+            "put": {
+                "description": "Updates object store with latest GTFS Schedule. Only ` + "`" + `.zip` + "`" + ` files are allowed.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "timetable"
+                    "GTFS Schedule"
                 ],
-                "summary": "Takes a timetable name and returns the latest JSON timetable data with its corresponding version ID",
-                "operationId": "getTimetableByName",
+                "summary": "Takes a GTFS Schedule .zip package and uploads it to the object store",
+                "operationId": "putGTFSSchedule",
                 "parameters": [
                     {
-                        "type": "string",
-                        "format": "json",
-                        "description": "The name of the timetable you want (including .json)",
-                        "name": "name",
-                        "in": "path",
+                        "type": "file",
+                        "description": "A GTFS schedule package (must be .zip)",
+                        "name": "GTFSSchedule",
+                        "in": "formData",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Returns the latest timetable with version ID",
+                        "description": "File successfully uploaded",
                         "schema": {
-                            "$ref": "#/definitions/api.GetTimetableResponse"
+                            "$ref": "#/definitions/api.PutTimetableResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid file type",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/schedule/version": {
+            "get": {
+                "description": "Get the versionID of the latest GTFS Schedule",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GTFS Schedule"
+                ],
+                "summary": "Returns the latest  VersionID",
+                "operationId": "getGTFSScheduleVersionID",
+                "responses": {
+                    "200": {
+                        "description": "Returned the version ID",
+                        "schema": {
+                            "$ref": "#/definitions/api.GetVersionIDResponse"
                         }
                     },
                     "400": {
@@ -123,12 +146,8 @@ const docTemplate = `{
                 "code": {
                     "type": "integer"
                 },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer",
-                        "format": "int32"
-                    }
+                "downloadURL": {
+                    "type": "string"
                 },
                 "versionID": {
                     "type": "string"
@@ -145,6 +164,17 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "api.PutTimetableResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "versionID": {
+                    "type": "string"
+                }
+            }
         }
     }
 }`
@@ -155,8 +185,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "transitIOMAPI",
-	Description:      "This is an API for the transitIOM application",
+	Title:            "projectMercury",
+	Description:      "The transitIOM REST API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
