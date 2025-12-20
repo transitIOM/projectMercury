@@ -15,7 +15,6 @@ import (
 // @description	Returns a link to download GTFSSchedule.zip and the versionID
 // @produce		json
 // @success		200	{object}	api.GetTimetableResponse	"Returned a download link and versionID"
-// @failure		400	{object}	api.Error					"Invalid timetable name"
 // @failure		500	{object}	api.Error					"Internal server error"
 // @router			/schedule [get]
 func getGTFSScheduleDownloadURL(w http.ResponseWriter, r *http.Request) {
