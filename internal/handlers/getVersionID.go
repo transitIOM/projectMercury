@@ -15,7 +15,6 @@ import (
 // @description	Get the versionID of the latest GTFS Schedule
 // @produce		json
 // @success		200	{object}	api.GetVersionIDResponse	"Returned the version ID"
-// @failure		400	{object}	api.Error					"Invalid timetable name"
 // @failure		500	{object}	api.Error					"Internal server error"
 // @router			/schedule/version [get]
 func getGTFSScheduleVersionID(w http.ResponseWriter, r *http.Request) {
