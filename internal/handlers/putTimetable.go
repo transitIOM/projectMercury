@@ -12,18 +12,7 @@ import (
 	"github.com/transitIOM/projectMercury/internal/tools"
 )
 
-// @id				putGTFSSchedule
-// @tags			GTFS Schedule
-// @summary		Takes a GTFS Schedule .zip package and uploads it to the object store
-// @description	Updates object store with latest GTFS Schedule. Only `.zip` files are allowed.
-// @accept			multipart/form-data
-// @produce		json
-// @param			GTFSSchedule	formData	file						true	"A GTFS schedule package (must be .zip)"
-// @success		202			{object}	api.PutTimetableResponse	"File successfully uploaded"
-// @failure		400				{object}	api.Error					"Invalid file type"
-// @failure		500				{object}	api.Error					"Internal server error"
-// @router			/schedule [put]
-func putGTFSSchedule(w http.ResponseWriter, r *http.Request) {
+func PutGTFSSchedule(w http.ResponseWriter, r *http.Request) {
 	file, fileHeader, err := r.FormFile("GTFSSchedule")
 	if err != nil {
 		api.InternalErrorHandler(w)
@@ -37,7 +26,7 @@ func putGTFSSchedule(w http.ResponseWriter, r *http.Request) {
 	}(file)
 	filetype := fileHeader.Header.Get("Content-Type")
 	if (filetype != "application/zip") && (filetype != "application/x-zip-compressed") {
-		err = errors.New(fmt.Sprintf("unsupported file type: %s. Please upload a GTFS schedule .zip package.", filetype))
+		err = fmt.Errorf("unsupported file type: %s. Please upload a GTFS schedule .zip package", filetype)
 		api.RequestErrorHandler(w, err)
 		return
 	}

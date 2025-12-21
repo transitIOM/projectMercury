@@ -1,12 +1,17 @@
 package handlers
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httprate"
+	"github.com/go-chi/jwtauth/v5"
 )
+
+var tokenAuth *jwtauth.JWTAuth
 
 func Handler(r *chi.Mux) {
 	r.Use(middleware.RequestID)
@@ -17,17 +22,28 @@ func Handler(r *chi.Mux) {
 
 	v1 := chi.NewRouter()
 
-	// dont fuck with this
-	v1.Route("/schedule", func(router chi.Router) {
-		router.Use(httprate.LimitByIP(5, time.Minute))
-		// requires the timetable name to be provided ending in .json
+	// GTFS schedule public endpoint v1
+	v1.Route("/schedule", func(r chi.Router) {
+		r.Use(httprate.LimitByIP(5, time.Minute))
 
-		router.Get("/version", getGTFSScheduleVersionID)
-		router.Get("/", getGTFSScheduleDownloadURL)
-		router.Put("/", putGTFSSchedule)
+		// public routes
+		r.Group(func(r chi.Router) {
+			r.Get("/version", GetGTFSScheduleVersionID)
+			r.Get("/", GetGTFSScheduleDownloadURL)
+			r.Get("/authenticate", GetAdminToken)
+		})
+
+		// private routes
+		r.Group(func(r chi.Router) {
+			// verify token
+			r.Use(jwtauth.Verifier(tokenAuth))
+			r.Put("/", PutGTFSSchedule)
+			r.Get("/admin", func(w http.ResponseWriter, req *http.Request) {
+				_, claims, _ := jwtauth.FromContext(req.Context())
+				w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["user_id"])))
+			})
+		})
 	})
-
-	//TODO: Need to test endpoints, finish adding swagger comments for documentation, change logging target to a log file
 
 	r.Mount("/api/v1", v1)
 }

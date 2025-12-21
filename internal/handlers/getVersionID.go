@@ -9,15 +9,7 @@ import (
 	"github.com/transitIOM/projectMercury/internal/tools"
 )
 
-// @id				getGTFSScheduleVersionID
-// @tags			GTFS Schedule
-// @summary		Returns the latest VersionID
-// @description	Get the versionID of the latest GTFS Schedule
-// @produce		json
-// @success		200	{object}	api.GetVersionIDResponse	"Returned the version ID"
-// @failure		500	{object}	api.Error					"Internal server error"
-// @router			/schedule/version [get]
-func getGTFSScheduleVersionID(w http.ResponseWriter, r *http.Request) {
+func GetGTFSScheduleVersionID(w http.ResponseWriter, r *http.Request) {
 
 	versionID, err := tools.GetLatestGTFSScheduleVersionID()
 	if err != nil {
