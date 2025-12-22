@@ -5,27 +5,21 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
-	httpSwagger "github.com/swaggo/http-swagger"
-	_ "github.com/transitIOM/projectMercury/docs"
 	"github.com/transitIOM/projectMercury/internal/handlers"
 )
 
-//	@title			projectMercury
-//	@version		1.0
-//	@description	The transitIOM REST API
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("No .env file found")
+	}
+}
 
-//	@contact.name	Jayden T
-//	@contact.email	support@jaydent.uk
-
-// @basePath	/api/v1
 func main() {
 	log.SetReportCaller(true)
 	r := chi.NewRouter()
 	handlers.Handler(r)
-	r.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8090/swagger/doc.json"), //The url pointing to API definition
-	))
 
 	fmt.Println("Starting transit-IOMAPI service...")
 

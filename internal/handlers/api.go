@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httprate"
+	internalMiddleware "github.com/transitIOM/projectMercury/internal/middleware"
 )
 
 func Handler(r *chi.Mux) {
@@ -17,17 +20,25 @@ func Handler(r *chi.Mux) {
 
 	v1 := chi.NewRouter()
 
-	// dont fuck with this
-	v1.Route("/schedule", func(router chi.Router) {
-		router.Use(httprate.LimitByIP(5, time.Minute))
-		// requires the timetable name to be provided ending in .json
+	// GTFS schedule public endpoint v1
+	v1.Route("/schedule", func(r chi.Router) {
+		r.Use(httprate.LimitByIP(5, time.Minute))
 
-		router.Get("/version", getGTFSScheduleVersionID)
-		router.Get("/", getGTFSScheduleDownloadURL)
-		router.Put("/", putGTFSSchedule)
+		// public routes
+		r.Group(func(r chi.Router) {
+			r.Get("/version", GetGTFSScheduleVersionID)
+			r.Get("/", GetGTFSScheduleDownloadURL)
+		})
+
+		// private routes
+		r.Group(func(r chi.Router) {
+			r.Use(internalMiddleware.APIKeyAuth)
+			r.Put("/", PutGTFSSchedule)
+			r.Get("/test", func(w http.ResponseWriter, req *http.Request) {
+				w.Write([]byte(fmt.Sprintf("protected area.")))
+			})
+		})
 	})
-
-	//TODO: Need to test endpoints, finish adding swagger comments for documentation, change logging target to a log file
 
 	r.Mount("/api/v1", v1)
 }

@@ -32,3 +32,4 @@ go.work.sum
 .idea/tasks.xml
 # .idea/
 # .vscode/
+/.idea

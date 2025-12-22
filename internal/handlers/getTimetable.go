@@ -9,15 +9,7 @@ import (
 	"github.com/transitIOM/projectMercury/internal/tools"
 )
 
-// @id				getGTFSScheduleDownloadURL
-// @tags			GTFS Schedule
-// @summary		Get a download link for the latest data
-// @description	Returns a link to download GTFSSchedule.zip and the versionID
-// @produce		json
-// @success		200	{object}	api.GetTimetableResponse	"Returned a download link and versionID"
-// @failure		500	{object}	api.Error					"Internal server error"
-// @router			/schedule [get]
-func getGTFSScheduleDownloadURL(w http.ResponseWriter, r *http.Request) {
+func GetGTFSScheduleDownloadURL(w http.ResponseWriter, r *http.Request) {
 
 	downloadURL, versionID, err := tools.GetLatestGTFSScheduleURL()
 	if err != nil {
@@ -37,5 +29,6 @@ func getGTFSScheduleDownloadURL(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
+		return
 	}
 }
