@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"crypto"
+	"crypto/subtle"
 	"encoding/hex"
 	"errors"
 	"net/http"
@@ -47,7 +48,7 @@ func APIKeyAuth(next http.Handler) http.Handler {
 
 		userHash := hex.EncodeToString(h.Sum(nil))
 
-		if userHash != expectedHash {
+		if subtle.ConstantTimeCompare([]byte(userHash), []byte(expectedHash)) != 1 {
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			return
 		}
