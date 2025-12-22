@@ -1,17 +1,13 @@
 package handlers
 
 import (
-	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httprate"
-	"github.com/go-chi/jwtauth/v5"
+	internaMiddleware "github.com/transitIOM/projectMercury/internal/middleware"
 )
-
-var tokenAuth *jwtauth.JWTAuth
 
 func Handler(r *chi.Mux) {
 	r.Use(middleware.RequestID)
@@ -34,10 +30,8 @@ func Handler(r *chi.Mux) {
 
 		// private routes
 		r.Group(func(r chi.Router) {
+			r.Use(internaMiddleware.APIKeyAuth)
 			r.Put("/", PutGTFSSchedule)
-			r.Get("/admin", func(w http.ResponseWriter, req *http.Request) {
-				w.Write([]byte(fmt.Sprintf("protected area.")))
-			})
 		})
 	})
 
