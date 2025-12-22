@@ -27,7 +27,6 @@ func init() {
 		h := crypto.SHA256.New()
 		h.Write([]byte(s))
 		expectedHash = hex.EncodeToString(h.Sum(nil))
-		log.Infof("hash: %v", expectedHash)
 		log.Warn("pre-hashed API key preferred; please update ENV configuration")
 		return
 	}
