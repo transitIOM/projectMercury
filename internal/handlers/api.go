@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httprate"
-	internaMiddleware "github.com/transitIOM/projectMercury/internal/middleware"
+	internalMiddleware "github.com/transitIOM/projectMercury/internal/middleware"
 )
 
 func Handler(r *chi.Mux) {
@@ -32,7 +32,7 @@ func Handler(r *chi.Mux) {
 
 		// private routes
 		r.Group(func(r chi.Router) {
-			r.Use(internaMiddleware.APIKeyAuth)
+			r.Use(internalMiddleware.APIKeyAuth)
 			r.Put("/", PutGTFSSchedule)
 			r.Get("/admin", func(w http.ResponseWriter, req *http.Request) {
 				w.Write([]byte(fmt.Sprintf("protected area.")))
