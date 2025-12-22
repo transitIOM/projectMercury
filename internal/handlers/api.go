@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -32,6 +34,9 @@ func Handler(r *chi.Mux) {
 		r.Group(func(r chi.Router) {
 			r.Use(internaMiddleware.APIKeyAuth)
 			r.Put("/", PutGTFSSchedule)
+			r.Get("/admin", func(w http.ResponseWriter, req *http.Request) {
+				w.Write([]byte(fmt.Sprintf("protected area.")))
+			})
 		})
 	})
 

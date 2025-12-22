@@ -10,11 +10,13 @@ import (
 	"github.com/transitIOM/projectMercury/internal/handlers"
 )
 
-func main() {
+func init() {
 	if err := godotenv.Load(); err != nil {
-		log.Warn("No .env file found")
+		log.Fatal("No .env file found")
 	}
+}
 
+func main() {
 	log.SetReportCaller(true)
 	r := chi.NewRouter()
 	handlers.Handler(r)
