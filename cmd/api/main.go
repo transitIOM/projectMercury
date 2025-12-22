@@ -5,11 +5,16 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/transitIOM/projectMercury/internal/handlers"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Warn("No .env file found")
+	}
+
 	log.SetReportCaller(true)
 	r := chi.NewRouter()
 	handlers.Handler(r)

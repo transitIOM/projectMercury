@@ -52,6 +52,9 @@ var (
 	RequestErrorHandler = func(w http.ResponseWriter, err error) {
 		writeError(w, http.StatusBadRequest, err.Error())
 	}
+	UnauthorizedErrorHandler = func(w http.ResponseWriter, err error) {
+		writeError(w, http.StatusUnauthorized, err.Error())
+	}
 	InternalErrorHandler = func(w http.ResponseWriter) {
 		writeError(w, http.StatusInternalServerError, "Internal Server Error")
 	}

@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -14,6 +15,7 @@ import (
 var tokenAuth *jwtauth.JWTAuth
 
 func Handler(r *chi.Mux) {
+	tokenAuth = jwtauth.New("HS256", []byte(os.Getenv("JWT_KEY")), nil)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -37,6 +39,7 @@ func Handler(r *chi.Mux) {
 		r.Group(func(r chi.Router) {
 			// verify token
 			r.Use(jwtauth.Verifier(tokenAuth))
+			r.Use(jwtauth.Authenticator(tokenAuth))
 			r.Put("/", PutGTFSSchedule)
 			r.Get("/admin", func(w http.ResponseWriter, req *http.Request) {
 				_, claims, _ := jwtauth.FromContext(req.Context())

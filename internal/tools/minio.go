@@ -58,7 +58,10 @@ type bucketOptions struct {
 func makeBucket(options bucketOptions) {
 
 	exists, err := c.BucketExists(ctx, options.name)
-	if exists == false {
+	if err != nil {
+		log.Error(err)
+	}
+	if !exists {
 		err = c.MakeBucket(ctx, options.name, options.makeBucketOptions)
 		if err != nil {
 			log.Error(err)
