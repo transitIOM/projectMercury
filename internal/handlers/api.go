@@ -34,7 +34,7 @@ func Handler(r *chi.Mux) {
 		r.Group(func(r chi.Router) {
 			r.Use(internalMiddleware.APIKeyAuth)
 			r.Put("/", PutGTFSSchedule)
-			r.Get("/admin", func(w http.ResponseWriter, req *http.Request) {
+			r.Get("/test", func(w http.ResponseWriter, req *http.Request) {
 				w.Write([]byte(fmt.Sprintf("protected area.")))
 			})
 		})
