@@ -30,6 +30,6 @@ go.work.sum
 # Editor/IDE
 .idea/workspace.xml
 .idea/tasks.xml
-# .idea/
-# .vscode/
-/.idea
+.idea/
+.vscode/
+bin/

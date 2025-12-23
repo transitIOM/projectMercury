@@ -12,6 +12,18 @@ import (
 	"github.com/transitIOM/projectMercury/internal/tools"
 )
 
+// PutGTFSSchedule godoc
+// @Summary      Upload a new GTFS schedule
+// @Description  Uploads a new GTFS schedule (zip file).
+// @Tags         schedule
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        GTFSSchedule  formData  file  true  "GTFS Schedule zip file"
+// @Security     ApiKeyAuth
+// @Success      202  {object}  api.PutTimetableResponse
+// @Failure      400  {object}  api.Error
+// @Failure      500  {object}  api.Error
+// @Router       /schedule/ [put]
 func PutGTFSSchedule(w http.ResponseWriter, r *http.Request) {
 	file, fileHeader, err := r.FormFile("GTFSSchedule")
 	if err != nil {
