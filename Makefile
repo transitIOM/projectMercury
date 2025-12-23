@@ -1,15 +1,12 @@
-BIN_NAME := api
-CMD_PKG := ./cmd/api
-
 .PHONY: all build run clean
 
 all: run
 
 build:
-	go build -o bin/$(BIN_NAME) $(CMD_PKG)
+	go build -o bin/api cmd/api
 
 run: build
-	./bin/$(BIN_NAME)
+	go run cmd/api/main.go
 
 clean:
 	rm -rf bin
