@@ -9,6 +9,14 @@ import (
 	"github.com/transitIOM/projectMercury/internal/tools"
 )
 
+// GetGTFSScheduleVersionID godoc
+// @Summary      Get latest GTFS schedule version ID
+// @Description  Retrieves the version ID of the latest GTFS schedule.
+// @Tags         schedule
+// @Produce      json
+// @Success      200  {object}  api.GetVersionIDResponse
+// @Failure      500  {object}  api.Error
+// @Router       /schedule/version [get]
 func GetGTFSScheduleVersionID(w http.ResponseWriter, r *http.Request) {
 
 	versionID, err := tools.GetLatestGTFSScheduleVersionID()

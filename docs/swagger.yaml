@@ -1,0 +1,125 @@
+basePath: /api/v1
+definitions:
+  api.Error:
+    properties:
+      code:
+        example: 500
+        type: integer
+      message:
+        example: Internal Server Error
+        type: string
+    type: object
+  api.GetTimetableResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      downloadURL:
+        example: https://example.com/GTFSSchedule.zip
+        type: string
+      versionID:
+        example: 20231215-143022
+        type: string
+    type: object
+  api.GetVersionIDResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      version:
+        example: 20231215-143022
+        type: string
+    type: object
+  api.PutTimetableResponse:
+    properties:
+      code:
+        example: 202
+        type: integer
+      versionID:
+        example: 20231215-143022
+        type: string
+    type: object
+host: localhost:8090
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API for Transit IOM GTFS Schedule management.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Project Mercury API
+  version: "1.0"
+paths:
+  /schedule/:
+    get:
+      description: Retrieves the download URL and version ID of the latest GTFS schedule.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GetTimetableResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Get latest GTFS schedule download URL
+      tags:
+      - schedule
+    put:
+      consumes:
+      - multipart/form-data
+      description: Uploads a new GTFS schedule (zip file).
+      parameters:
+      - description: GTFS Schedule zip file
+        in: formData
+        name: GTFSSchedule
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/api.PutTimetableResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Upload a new GTFS schedule
+      tags:
+      - schedule
+  /schedule/version:
+    get:
+      description: Retrieves the version ID of the latest GTFS schedule.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GetVersionIDResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Get latest GTFS schedule version ID
+      tags:
+      - schedule
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
