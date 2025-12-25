@@ -15,10 +15,12 @@ import (
 )
 
 var (
-	c          *minio.Client
-	ctx        context.Context
-	bucketName = "gtfs"
-	objectName = "GTFSSchedule.zip"
+	c                   *minio.Client
+	ctx                 context.Context
+	gtfsBucketName      = "gtfs"
+	gtfsObjectName      = "GTFSSchedule.zip"
+	messagingBucketName = "messages"
+	messagingObjectName = "messages.json"
 )
 
 func init() {
@@ -41,12 +43,19 @@ func init() {
 		log.Fatal(err)
 	}
 
-	bucketOpt := bucketOptions{
-		name:              bucketName,
+	gtfsBucketOpt := bucketOptions{
+		name:              gtfsBucketName,
 		makeBucketOptions: minio.MakeBucketOptions{},
 		versioningConfig:  minio.BucketVersioningConfiguration{Status: "Enabled"},
 	}
-	makeBucket(bucketOpt)
+	makeBucket(gtfsBucketOpt)
+
+	messagingBucketOpt := bucketOptions{
+		name:              messagingBucketName,
+		makeBucketOptions: minio.MakeBucketOptions{},
+		versioningConfig:  minio.BucketVersioningConfiguration{Status: "Enabled"},
+	}
+	makeBucket(messagingBucketOpt)
 }
 
 type bucketOptions struct {
@@ -76,8 +85,8 @@ func makeBucket(options bucketOptions) {
 
 func GetLatestGTFSScheduleVersionID() (versionID string, err error) {
 
-	bucketName := "gtfs"
-	objectName := "GTFSSchedule.zip"
+	bucketName := gtfsBucketName
+	objectName := gtfsObjectName
 
 	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
 	if err != nil {
@@ -91,10 +100,10 @@ func GetLatestGTFSScheduleURL() (downloadURL *url.URL, versionID string, err err
 
 	expiryTime := 5 * time.Minute
 	reqParams := make(url.Values)
-	reqParams.Set("response-content-disposition", fmt.Sprintf("attachment; filename=%s", objectName))
+	reqParams.Set("response-content-disposition", fmt.Sprintf("attachment; filename=%s", gtfsObjectName))
 	reqParams.Set("response-content-type", "application/zip")
 
-	downloadURL, err = c.PresignedGetObject(ctx, bucketName, objectName, expiryTime, reqParams)
+	downloadURL, err = c.PresignedGetObject(ctx, gtfsBucketName, gtfsObjectName, expiryTime, reqParams)
 	if err != nil {
 		return nil, "", err
 	}
@@ -109,9 +118,44 @@ func GetLatestGTFSScheduleURL() (downloadURL *url.URL, versionID string, err err
 
 func PutLatestGTFSSchedule(reader io.Reader, fileSize int64) (versionID string, err error) {
 
-	uploadInfo, err := c.PutObject(ctx, bucketName, objectName, reader, fileSize, minio.PutObjectOptions{ContentType: "application/zip"})
+	uploadInfo, err := c.PutObject(ctx, gtfsBucketName, gtfsObjectName, reader, fileSize, minio.PutObjectOptions{ContentType: "application/zip"})
 	if err != nil {
 		return "", err
 	}
 	return uploadInfo.VersionID, nil
+}
+
+func GetLatestMessageLog() (versionID string, err error) {
+
+	bucketName := messagingBucketName
+	objectName := messagingObjectName
+
+	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
+	if err != nil {
+		return "", err
+	}
+
+	return attributes.VersionID, nil
+}
+
+func PutLatestMessageLog(reader io.Reader, fileSize int64) (versionID string, err error) {
+
+	uploadInfo, err := c.PutObject(ctx, messagingBucketName, gtfsObjectName, reader, fileSize, minio.PutObjectOptions{ContentType: "text/plain"})
+	if err != nil {
+		return "", err
+	}
+	return uploadInfo.VersionID, nil
+}
+
+func GetLatestMessageLogVersionID() (versionID string, err error) {
+
+	bucketName := messagingBucketName
+	objectName := messagingObjectName
+
+	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
+	if err != nil {
+		return "", err
+	}
+
+	return attributes.VersionID, nil
 }
