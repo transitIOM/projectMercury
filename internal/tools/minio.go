@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -125,26 +126,30 @@ func PutLatestGTFSSchedule(reader io.Reader, fileSize int64) (versionID string, 
 	return uploadInfo.VersionID, nil
 }
 
-func GetLatestMessageLog() (versionID string, err error) {
+func AppendMessage(b *bytes.Buffer, fileSize int64) (versionID string, err error) {
 
-	bucketName := messagingBucketName
-	objectName := messagingObjectName
+	r := bytes.NewReader(b.Bytes())
 
-	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
-	if err != nil {
-		return "", err
-	}
-
-	return attributes.VersionID, nil
-}
-
-func PutLatestMessageLog(reader io.Reader, fileSize int64) (versionID string, err error) {
-
-	uploadInfo, err := c.PutObject(ctx, messagingBucketName, gtfsObjectName, reader, fileSize, minio.PutObjectOptions{ContentType: "text/plain"})
+	uploadInfo, err := c.AppendObject(ctx, messagingBucketName, messagingObjectName, r, fileSize, minio.AppendObjectOptions{})
 	if err != nil {
 		return "", err
 	}
 	return uploadInfo.VersionID, nil
+}
+
+func GetLatestMessageLog() (messageLog bytes.Buffer, err error) {
+
+	bucketName := messagingBucketName
+	objectName := messagingObjectName
+
+	r, err := c.GetObject(ctx, bucketName, objectName, minio.GetObjectOptions{})
+	if err != nil {
+		return bytes.Buffer{}, err
+	}
+
+	messageLog.ReadFrom(r)
+
+	return messageLog, nil
 }
 
 func GetLatestMessageLogVersionID() (versionID string, err error) {

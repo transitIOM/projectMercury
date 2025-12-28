@@ -23,9 +23,15 @@ type PutTimetableResponse struct {
 	VersionID string `json:"versionID" example:"20231215-143022"`
 }
 
-type GetAuthTokenResponse struct {
-	Code  int    `json:"code" example:"200"`
-	Token string `json:"token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+type GetMessagesResponse struct {
+	Code      int    `json:"code" example:"200"`
+	Messages  string `json:"messages" example:"{\"timestamp\": \"2026-1-1T00:00:00.000Z\", \"message\": \"Example message\"}"`
+	VersionID string `json:"versionID" example:"5e4b7d12-542f-4ecf-8d95-7fbec7f7e806"`
+}
+
+type PutMessageResponse struct {
+	Code      int    `json:"code" example:"202"`
+	VersionID string `json:"versionID" example:"5e4b7d12-542f-4ecf-8d95-7fbec7f7e806"`
 }
 
 type Error struct {
