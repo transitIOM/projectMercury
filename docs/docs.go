@@ -11,9 +11,8 @@ const docTemplate = `{
         "title": "{{.Title}}",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
+            "name": "Jayden Thompson",
+            "email": "admin@transitIOM.com"
         },
         "license": {
             "name": "Apache 2.0",
@@ -24,6 +23,105 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/messages/": {
+            "get": {
+                "description": "Retrieves the last 3 lines of the message log and the version ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Get latest messages",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.GetMessagesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Uploads a new message to the message log.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Upload a new message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Message content",
+                        "name": "message",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/api.PutMessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/version": {
+            "get": {
+                "description": "Retrieves the version ID of the latest message log.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Get latest message log version ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.GetVersionIDResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/schedule/": {
             "get": {
                 "description": "Retrieves the download URL and version ID of the latest GTFS schedule.",
@@ -138,6 +236,23 @@ const docTemplate = `{
                 }
             }
         },
+        "api.GetMessagesResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "messages": {
+                    "type": "string",
+                    "example": "{\"timestamp\": \"2026-1-1T00:00:00.000Z\", \"message\": \"Example message\"}"
+                },
+                "versionID": {
+                    "type": "string",
+                    "example": "5e4b7d12-542f-4ecf-8d95-7fbec7f7e806"
+                }
+            }
+        },
         "api.GetTimetableResponse": {
             "type": "object",
             "properties": {
@@ -168,6 +283,19 @@ const docTemplate = `{
                 }
             }
         },
+        "api.PutMessageResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 202
+                },
+                "versionID": {
+                    "type": "string",
+                    "example": "5e4b7d12-542f-4ecf-8d95-7fbec7f7e806"
+                }
+            }
+        },
         "api.PutTimetableResponse": {
             "type": "object",
             "properties": {
@@ -193,12 +321,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "0.1.0",
 	Host:             "localhost:8090",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Project Mercury API",
-	Description:      "API for Transit IOM GTFS Schedule management.",
+	Description:      "The transitIOM REST API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

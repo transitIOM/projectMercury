@@ -9,6 +9,18 @@ definitions:
         example: Internal Server Error
         type: string
     type: object
+  api.GetMessagesResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      messages:
+        example: '{"timestamp": "2026-1-1T00:00:00.000Z", "message": "Example message"}'
+        type: string
+      versionID:
+        example: 5e4b7d12-542f-4ecf-8d95-7fbec7f7e806
+        type: string
+    type: object
   api.GetTimetableResponse:
     properties:
       code:
@@ -30,6 +42,15 @@ definitions:
         example: 20231215-143022
         type: string
     type: object
+  api.PutMessageResponse:
+    properties:
+      code:
+        example: 202
+        type: integer
+      versionID:
+        example: 5e4b7d12-542f-4ecf-8d95-7fbec7f7e806
+        type: string
+    type: object
   api.PutTimetableResponse:
     properties:
       code:
@@ -42,17 +63,80 @@ definitions:
 host: localhost:8090
 info:
   contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: API for Transit IOM GTFS Schedule management.
+    email: admin@transitIOM.com
+    name: Jayden Thompson
+  description: The transitIOM REST API
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
   title: Project Mercury API
-  version: "1.0"
+  version: 0.1.0
 paths:
+  /messages/:
+    get:
+      description: Retrieves the last 3 lines of the message log and the version ID.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GetMessagesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Get latest messages
+      tags:
+      - messages
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Uploads a new message to the message log.
+      parameters:
+      - description: Message content
+        in: formData
+        name: message
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/api.PutMessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Upload a new message
+      tags:
+      - messages
+  /messages/version:
+    get:
+      description: Retrieves the version ID of the latest message log.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GetVersionIDResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Get latest message log version ID
+      tags:
+      - messages
   /schedule/:
     get:
       description: Retrieves the download URL and version ID of the latest GTFS schedule.

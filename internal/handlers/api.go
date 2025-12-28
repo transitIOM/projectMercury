@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -12,10 +11,10 @@ import (
 	internalMiddleware "github.com/transitIOM/projectMercury/internal/middleware"
 )
 
-// @title           Project Mercury API
+// @title           Project Mercury
 // @version         0.1.0
-// @description     API for Transit IOM GTFS Schedule management.
-// @termsOfService  http://swagger.io/terms/
+// @description     The REST API serving everything needed for the transitIOM app
+// @termsOfService  coming soon
 
 // @contact.name   Jayden Thompson
 // @contact.email  admin@transitIOM.com
@@ -36,9 +35,9 @@ func Handler(r *chi.Mux) {
 	r.Use(middleware.StripSlashes)
 	r.Use(middleware.Timeout(30 * time.Second))
 
-	r.Get("/swagger/*", httpSwagger.WrapHandler)
-
 	v1 := chi.NewRouter()
+
+	v1.Get("/docs/*", httpSwagger.WrapHandler)
 
 	// GTFS schedule public endpoint v1
 	v1.Route("/schedule", func(r chi.Router) {
@@ -54,9 +53,19 @@ func Handler(r *chi.Mux) {
 		r.Group(func(r chi.Router) {
 			r.Use(internalMiddleware.APIKeyAuth)
 			r.Put("/", PutGTFSSchedule)
-			r.Get("/test", func(w http.ResponseWriter, req *http.Request) {
-				w.Write([]byte("protected area"))
-			})
+			r.Put("/message", PutMessage)
+		})
+	})
+
+	v1.Route("/messages", func(r chi.Router) {
+		r.Use(httprate.LimitByIP(5, time.Minute))
+		r.Group(func(r chi.Router) {
+			r.Get("/", GetMessages)
+			r.Get("/version", GetMessageLogVersionID)
+		})
+		r.Group(func(r chi.Router) {
+			r.Use(internalMiddleware.APIKeyAuth)
+			r.Put("/", PutMessage)
 		})
 	})
 
