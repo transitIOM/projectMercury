@@ -92,7 +92,8 @@ func GetLastNLines(n int) (*bytes.Buffer, error) {
 		messageMu.RUnlock()
 		if err := pullDataFromStorage(); err != nil {
 			log.Debug("local message log not found")
-			return nil, nil
+			empty := bytes.Buffer{}
+			return &empty, nil
 		}
 		messageMu.RLock()
 	}
