@@ -19,7 +19,12 @@ import (
 // @Router       /messages/ [get]
 func GetMessages(w http.ResponseWriter, r *http.Request) {
 	messageCount := 3
-	b := tools.GetLastNLines(messageCount)
+	b, err := tools.GetLastNLines(messageCount)
+	if err != nil {
+		log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+	}
 	v, err := tools.GetLatestMessageLogVersionID()
 	if err != nil {
 		log.Error(err)
