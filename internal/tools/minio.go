@@ -21,7 +21,7 @@ var (
 	gtfsBucketName      = "gtfs"
 	gtfsObjectName      = "GTFSSchedule.zip"
 	messagingBucketName = "messages"
-	messagingObjectName = "messages.json"
+	messagingObjectName = "messages.jsonl"
 )
 
 func init() {
@@ -127,10 +127,20 @@ func PutLatestGTFSSchedule(reader io.Reader, fileSize int64) (versionID string, 
 }
 
 func AppendMessage(b *bytes.Buffer, fileSize int64) (versionID string, err error) {
-
 	r := bytes.NewReader(b.Bytes())
 
-	uploadInfo, err := c.AppendObject(ctx, messagingBucketName, messagingObjectName, r, fileSize, minio.AppendObjectOptions{})
+	_, statErr := c.StatObject(ctx, messagingBucketName, messagingObjectName, minio.StatObjectOptions{})
+
+	var uploadInfo minio.UploadInfo
+
+	if minio.ToErrorResponse(statErr).Code == "NoSuchKey" {
+		uploadInfo, err = c.PutObject(ctx, messagingBucketName, messagingObjectName, r, fileSize, minio.PutObjectOptions{})
+	} else if statErr != nil {
+		return "", statErr
+	} else {
+		uploadInfo, err = c.AppendObject(ctx, messagingBucketName, messagingObjectName, r, fileSize, minio.AppendObjectOptions{})
+	}
+
 	if err != nil {
 		return "", err
 	}
@@ -144,10 +154,16 @@ func GetLatestMessageLog() (messageLog bytes.Buffer, err error) {
 
 	r, err := c.GetObject(ctx, bucketName, objectName, minio.GetObjectOptions{})
 	if err != nil {
+		log.Error(err)
 		return bytes.Buffer{}, err
 	}
+	defer r.Close()
 
-	messageLog.ReadFrom(r)
+	_, err = messageLog.ReadFrom(r)
+	if err != nil {
+		log.Error(err)
+		return bytes.Buffer{}, err
+	}
 
 	return messageLog, nil
 }
@@ -159,6 +175,9 @@ func GetLatestMessageLogVersionID() (versionID string, err error) {
 
 	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
 	if err != nil {
+		if minio.ToErrorResponse(err).Code == "NoSuchKey" {
+			return "", err
+		}
 		return "", err
 	}
 
