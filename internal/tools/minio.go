@@ -110,9 +110,9 @@ func GetLatestGTFSScheduleURL() (downloadURL *url.URL, versionID string, err err
 	reqParams.Set("response-content-type", "application/zip")
 
 	gtfsMutex.RLock()
-	defer gtfsMutex.RUnlock()
-
 	downloadURL, err = c.PresignedGetObject(ctx, gtfsBucketName, gtfsObjectName, expiryTime, reqParams)
+	gtfsMutex.RUnlock()
+
 	if err != nil {
 		return nil, "", err
 	}
@@ -137,23 +137,26 @@ func PutLatestGTFSSchedule(reader io.Reader, fileSize int64) (versionID string, 
 	return uploadInfo.VersionID, nil
 }
 
-func AppendMessage(b *bytes.Buffer, fileSize int64) (versionID string, err error) {
-	r := bytes.NewReader(b.Bytes())
+func AppendMessage(b *bytes.Buffer) (versionID string, err error) {
+	existingData, err := GetLatestMessageLog()
+	if err != nil {
+		if minio.ToErrorResponse(err).Code != "NoSuchKey" {
+			return "", err
+		}
+	}
 
 	messagingMutex.Lock()
 	defer messagingMutex.Unlock()
 
-	_, statErr := c.StatObject(ctx, messagingBucketName, messagingObjectName, minio.StatObjectOptions{})
-
-	var uploadInfo minio.UploadInfo
-
-	if minio.ToErrorResponse(statErr).Code == "NoSuchKey" {
-		uploadInfo, err = c.PutObject(ctx, messagingBucketName, messagingObjectName, r, fileSize, minio.PutObjectOptions{ContentType: "text/jsonl"})
-	} else if statErr != nil {
-		return "", statErr
-	} else {
-		uploadInfo, err = c.AppendObject(ctx, messagingBucketName, messagingObjectName, r, fileSize, minio.AppendObjectOptions{})
+	_, err = existingData.ReadFrom(b)
+	if err != nil {
+		return "", err
 	}
+
+	updatedReader := bytes.NewReader(existingData.Bytes())
+	uploadInfo, err := c.PutObject(ctx, messagingBucketName, messagingObjectName, updatedReader, int64(existingData.Len()), minio.PutObjectOptions{
+		ContentType: "text/jsonl",
+	})
 
 	if err != nil {
 		return "", err

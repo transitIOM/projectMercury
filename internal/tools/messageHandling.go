@@ -34,25 +34,14 @@ func PushMessageToStorage(message string) (err error) {
 	b := bytes.Buffer{}
 
 	w := jsonl.NewWriter(&b)
-	defer func() {
-		closeErr := w.Close()
-		if err == nil {
-			err = closeErr
-		}
-		if closeErr != nil {
-			log.Error(closeErr)
-		}
-	}()
 
 	err = w.Write(messageObj)
 	if err != nil {
 		return err
 	}
 
-	size := int64(b.Len())
-
 	// append message to s3 store
-	_, err = AppendMessage(&b, size)
+	_, err = AppendMessage(&b)
 	if err != nil {
 		return err
 	}
@@ -71,26 +60,31 @@ func pullDataFromStorage() error {
 		return err
 	}
 
-	messageMu.Lock()
-	CurrentMessageLog = b
-	messageMu.Unlock()
-
 	v, err := GetLatestMessageLogVersionID()
 	if err != nil {
 		return err
 	}
 
 	messageMu.Lock()
+	defer messageMu.Unlock()
+	CurrentMessageLog = b
 	CurrentMessageVersionID = v
-	messageMu.Unlock()
 
 	return nil
 }
 
-func GetLastNLines(n int) *bytes.Buffer {
+func GetLastNLines(n int) (*bytes.Buffer, error) {
 	messageMu.RLock()
+	if CurrentMessageLog.Len() == 0 {
+		messageMu.RUnlock()
+		if err := pullDataFromStorage(); err != nil {
+			return nil, err
+		}
+		messageMu.RLock()
+	}
+	defer messageMu.RUnlock()
+
 	data := CurrentMessageLog.Bytes()
-	messageMu.RUnlock()
 	lines := bytes.Split(data, []byte("\n"))
 
 	if len(lines) > 0 && len(lines[len(lines)-1]) == 0 {
@@ -114,12 +108,19 @@ func GetLastNLines(n int) *bytes.Buffer {
 		result.WriteByte('\n')
 	}
 
-	return result
+	return result, nil
 }
 
-func GetLatestMessageVersion() string {
+func GetLatestMessageVersion() (string, error) {
 	messageMu.RLock()
-	versionID := CurrentMessageVersionID
-	messageMu.RUnlock()
-	return versionID
+	if CurrentMessageVersionID == "" {
+		messageMu.RUnlock()
+		if err := pullDataFromStorage(); err != nil {
+			return "", err
+		}
+		messageMu.RLock()
+	}
+	defer messageMu.RUnlock()
+
+	return CurrentMessageVersionID, nil
 }
