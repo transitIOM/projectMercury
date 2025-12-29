@@ -24,7 +24,17 @@ import (
 func PutMessage(w http.ResponseWriter, r *http.Request) {
 	message := r.FormValue("message")
 
-	tools.PushMessageToStorage(message)
+	if message == "" {
+		http.Error(w, "message parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	err := tools.PushMessageToStorage(message)
+	if err != nil {
+		log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+	}
 
 	versionID, err := tools.GetLatestMessageLogVersionID()
 	if err != nil {
