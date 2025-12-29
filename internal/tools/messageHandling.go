@@ -60,7 +60,7 @@ func pullDataFromStorage() error {
 
 	CurrentMessageLog = b
 
-	v, err := GetLatestGTFSScheduleVersionID()
+	v, err := GetLatestMessageLogVersionID()
 	if err != nil {
 		return err
 	}
