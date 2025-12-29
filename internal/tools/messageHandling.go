@@ -32,17 +32,28 @@ func PushMessageToStorage(message string) (err error) {
 	b := bytes.Buffer{}
 
 	w := jsonl.NewWriter(&b)
+	defer func() {
+		closeErr := w.Close()
+		if err == nil {
+			err = closeErr
+		}
+		if closeErr != nil {
+			log.Error(closeErr)
+		}
+	}()
 
 	err = w.Write(messageObj)
 	if err != nil {
 		return err
 	}
-	w.Close()
 
 	size := int64(b.Len())
 
 	// append message to s3 store
-	AppendMessage(&b, size)
+	_, err = AppendMessage(&b, size)
+	if err != nil {
+		return err
+	}
 	log.Infof("Added message: %v", b)
 
 	err = pullDataFromStorage()
