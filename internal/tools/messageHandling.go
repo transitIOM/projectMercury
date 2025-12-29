@@ -2,6 +2,7 @@ package tools
 
 import (
 	"bytes"
+	"sync"
 	"time"
 
 	"github.com/simonfrey/jsonl"
@@ -9,6 +10,7 @@ import (
 )
 
 var (
+	messageMu               sync.RWMutex
 	CurrentMessageLog       bytes.Buffer
 	CurrentMessageVersionID string
 )
@@ -69,20 +71,26 @@ func pullDataFromStorage() error {
 		return err
 	}
 
+	messageMu.Lock()
 	CurrentMessageLog = b
+	messageMu.Unlock()
 
 	v, err := GetLatestMessageLogVersionID()
 	if err != nil {
 		return err
 	}
 
+	messageMu.Lock()
 	CurrentMessageVersionID = v
+	messageMu.Unlock()
 
 	return nil
 }
 
 func GetLastNLines(n int) *bytes.Buffer {
+	messageMu.RLock()
 	data := CurrentMessageLog.Bytes()
+	messageMu.RUnlock()
 	lines := bytes.Split(data, []byte("\n"))
 
 	if len(lines) > 0 && len(lines[len(lines)-1]) == 0 {
@@ -110,5 +118,8 @@ func GetLastNLines(n int) *bytes.Buffer {
 }
 
 func GetLatestMessageVersion() string {
-	return CurrentMessageVersionID
+	messageMu.RLock()
+	versionID := CurrentMessageVersionID
+	messageMu.RUnlock()
+	return versionID
 }

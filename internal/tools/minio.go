@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -20,8 +21,10 @@ var (
 	ctx                 context.Context
 	gtfsBucketName      = "gtfs"
 	gtfsObjectName      = "GTFSSchedule.zip"
+	gtfsMutex           = sync.RWMutex{}
 	messagingBucketName = "messages"
 	messagingObjectName = "messages.jsonl"
+	messagingMutex      = sync.RWMutex{}
 )
 
 func init() {
@@ -89,9 +92,11 @@ func GetLatestGTFSScheduleVersionID() (versionID string, err error) {
 	bucketName := gtfsBucketName
 	objectName := gtfsObjectName
 
+	gtfsMutex.RLock()
+	defer gtfsMutex.RUnlock()
+
 	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
 	if err != nil {
-		return "", err
 	}
 
 	return attributes.VersionID, nil
@@ -103,6 +108,9 @@ func GetLatestGTFSScheduleURL() (downloadURL *url.URL, versionID string, err err
 	reqParams := make(url.Values)
 	reqParams.Set("response-content-disposition", fmt.Sprintf("attachment; filename=%s", gtfsObjectName))
 	reqParams.Set("response-content-type", "application/zip")
+
+	gtfsMutex.RLock()
+	defer gtfsMutex.RUnlock()
 
 	downloadURL, err = c.PresignedGetObject(ctx, gtfsBucketName, gtfsObjectName, expiryTime, reqParams)
 	if err != nil {
@@ -119,6 +127,9 @@ func GetLatestGTFSScheduleURL() (downloadURL *url.URL, versionID string, err err
 
 func PutLatestGTFSSchedule(reader io.Reader, fileSize int64) (versionID string, err error) {
 
+	gtfsMutex.Lock()
+	defer gtfsMutex.Unlock()
+
 	uploadInfo, err := c.PutObject(ctx, gtfsBucketName, gtfsObjectName, reader, fileSize, minio.PutObjectOptions{ContentType: "application/zip"})
 	if err != nil {
 		return "", err
@@ -129,12 +140,15 @@ func PutLatestGTFSSchedule(reader io.Reader, fileSize int64) (versionID string, 
 func AppendMessage(b *bytes.Buffer, fileSize int64) (versionID string, err error) {
 	r := bytes.NewReader(b.Bytes())
 
+	messagingMutex.Lock()
+	defer messagingMutex.Unlock()
+
 	_, statErr := c.StatObject(ctx, messagingBucketName, messagingObjectName, minio.StatObjectOptions{})
 
 	var uploadInfo minio.UploadInfo
 
 	if minio.ToErrorResponse(statErr).Code == "NoSuchKey" {
-		uploadInfo, err = c.PutObject(ctx, messagingBucketName, messagingObjectName, r, fileSize, minio.PutObjectOptions{})
+		uploadInfo, err = c.PutObject(ctx, messagingBucketName, messagingObjectName, r, fileSize, minio.PutObjectOptions{ContentType: "text/jsonl"})
 	} else if statErr != nil {
 		return "", statErr
 	} else {
@@ -151,6 +165,9 @@ func GetLatestMessageLog() (messageLog bytes.Buffer, err error) {
 
 	bucketName := messagingBucketName
 	objectName := messagingObjectName
+
+	messagingMutex.RLock()
+	defer messagingMutex.RUnlock()
 
 	r, err := c.GetObject(ctx, bucketName, objectName, minio.GetObjectOptions{})
 	if err != nil {
@@ -178,11 +195,11 @@ func GetLatestMessageLogVersionID() (versionID string, err error) {
 	bucketName := messagingBucketName
 	objectName := messagingObjectName
 
+	messagingMutex.RLock()
+	defer messagingMutex.RUnlock()
+
 	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
 	if err != nil {
-		if minio.ToErrorResponse(err).Code == "NoSuchKey" {
-			return "", err
-		}
 		return "", err
 	}
 
