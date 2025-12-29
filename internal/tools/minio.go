@@ -97,6 +97,7 @@ func GetLatestGTFSScheduleVersionID() (versionID string, err error) {
 
 	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
 	if err != nil {
+		return "", err
 	}
 
 	return attributes.VersionID, nil
@@ -138,7 +139,8 @@ func PutLatestGTFSSchedule(reader io.Reader, fileSize int64) (versionID string, 
 }
 
 func AppendMessage(b *bytes.Buffer) (versionID string, err error) {
-	// Read existing data directly while holding write lock
+	messagingMutex.Lock()
+	defer messagingMutex.Unlock()
 	existingData := bytes.Buffer{}
 	r, err := c.GetObject(ctx, messagingBucketName, messagingObjectName, minio.GetObjectOptions{})
 	if err != nil {
@@ -146,15 +148,17 @@ func AppendMessage(b *bytes.Buffer) (versionID string, err error) {
 			return "", err
 		}
 	} else {
-		defer r.Close()
+		defer func(r *minio.Object) {
+			err := r.Close()
+			if err != nil {
+
+			}
+		}(r)
 		_, err = existingData.ReadFrom(r)
 		if err != nil {
 			return "", err
 		}
 	}
-
-	messagingMutex.Lock()
-	defer messagingMutex.Unlock()
 
 	_, err = existingData.ReadFrom(b)
 	if err != nil {
