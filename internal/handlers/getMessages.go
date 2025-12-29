@@ -36,7 +36,7 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 
 	if b.Len() == 0 {
 		response = api.GetMessagesResponse{
-			Code:      http.StatusExpectationFailed,
+			Code:      http.StatusNoContent,
 			Messages:  "no messages yet",
 			VersionID: "-1",
 		}
