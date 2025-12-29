@@ -138,9 +138,17 @@ func PutLatestGTFSSchedule(reader io.Reader, fileSize int64) (versionID string, 
 }
 
 func AppendMessage(b *bytes.Buffer) (versionID string, err error) {
-	existingData, err := GetLatestMessageLog()
+	// Read existing data directly while holding write lock
+	existingData := bytes.Buffer{}
+	r, err := c.GetObject(ctx, messagingBucketName, messagingObjectName, minio.GetObjectOptions{})
 	if err != nil {
 		if minio.ToErrorResponse(err).Code != "NoSuchKey" {
+			return "", err
+		}
+	} else {
+		defer r.Close()
+		_, err = existingData.ReadFrom(r)
+		if err != nil {
 			return "", err
 		}
 	}
