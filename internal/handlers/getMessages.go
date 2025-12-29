@@ -25,17 +25,27 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 		api.InternalErrorHandler(w)
 		return
 	}
-	v, err := tools.GetLatestMessageLogVersionID()
+	v, err := tools.GetLatestMessageVersion()
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
 		return
 	}
 
-	response := api.GetMessagesResponse{
-		Code:      http.StatusOK,
-		Messages:  b.String(),
-		VersionID: v,
+	var response api.GetMessagesResponse
+
+	if b.Len() == 0 {
+		response = api.GetMessagesResponse{
+			Code:      http.StatusExpectationFailed,
+			Messages:  "no messages yet",
+			VersionID: "-1",
+		}
+	} else {
+		response = api.GetMessagesResponse{
+			Code:      http.StatusOK,
+			Messages:  b.String(),
+			VersionID: v,
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

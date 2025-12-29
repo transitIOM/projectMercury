@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/minio/minio-go/v7"
 	"github.com/simonfrey/jsonl"
 	log "github.com/sirupsen/logrus"
 )
@@ -55,18 +56,30 @@ func PushMessageToStorage(message string) (err error) {
 }
 
 func pullDataFromStorage() error {
+	messageMu.Lock()
+	defer messageMu.Unlock()
+
 	b, err := GetLatestMessageLog()
 	if err != nil {
-		return err
+		if minio.ToErrorResponse(err).Code == "NoSuchKey" {
+			b = bytes.Buffer{}
+			log.Debug("no message log found on server")
+			err = nil
+		} else {
+			return err
+		}
 	}
 
 	v, err := GetLatestMessageLogVersionID()
 	if err != nil {
-		return err
+		if minio.ToErrorResponse(err).Code == "NoSuchKey" {
+			v = ""
+			err = nil
+		} else {
+			return err
+		}
 	}
 
-	messageMu.Lock()
-	defer messageMu.Unlock()
 	CurrentMessageLog = b
 	CurrentMessageVersionID = v
 
@@ -78,7 +91,8 @@ func GetLastNLines(n int) (*bytes.Buffer, error) {
 	if CurrentMessageLog.Len() == 0 {
 		messageMu.RUnlock()
 		if err := pullDataFromStorage(); err != nil {
-			return nil, err
+			log.Debug("local message log not found")
+			return nil, nil
 		}
 		messageMu.RLock()
 	}
@@ -116,7 +130,8 @@ func GetLatestMessageVersion() (string, error) {
 	if CurrentMessageVersionID == "" {
 		messageMu.RUnlock()
 		if err := pullDataFromStorage(); err != nil {
-			return "", err
+			log.Debug("local message log version not found")
+			return "", nil
 		}
 		messageMu.RLock()
 	}
