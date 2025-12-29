@@ -53,7 +53,6 @@ func Handler(r *chi.Mux) {
 		r.Group(func(r chi.Router) {
 			r.Use(internalMiddleware.APIKeyAuth)
 			r.Put("/", PutGTFSSchedule)
-			r.Put("/message", PutMessage)
 		})
 	})
 
