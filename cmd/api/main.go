@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
@@ -11,6 +12,10 @@ import (
 )
 
 func init() {
+	//log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.DebugLevel)
+
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("No .env file found")
 	}

@@ -186,7 +186,6 @@ func GetLatestMessageLog() (messageLog bytes.Buffer, err error) {
 
 	r, err := c.GetObject(ctx, bucketName, objectName, minio.GetObjectOptions{})
 	if err != nil {
-		log.Error(err)
 		return bytes.Buffer{}, err
 	}
 	defer func(r *minio.Object) {
@@ -198,7 +197,6 @@ func GetLatestMessageLog() (messageLog bytes.Buffer, err error) {
 
 	_, err = messageLog.ReadFrom(r)
 	if err != nil {
-		log.Error(err)
 		return bytes.Buffer{}, err
 	}
 
