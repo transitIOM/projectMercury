@@ -1,9 +1,9 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "The transitIOM REST API",
-        "title": "Project Mercury API",
-        "termsOfService": "http://swagger.io/terms/",
+        "description": "The REST API serving everything needed for the transitIOM app",
+        "title": "Project Mercury",
+        "termsOfService": "coming soon",
         "contact": {
             "name": "Jayden Thompson",
             "email": "admin@transitIOM.com"

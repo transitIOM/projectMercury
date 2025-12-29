@@ -65,12 +65,12 @@ info:
   contact:
     email: admin@transitIOM.com
     name: Jayden Thompson
-  description: The transitIOM REST API
+  description: The REST API serving everything needed for the transitIOM app
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Project Mercury API
+  termsOfService: coming soon
+  title: Project Mercury
   version: 0.1.0
 paths:
   /messages/:
