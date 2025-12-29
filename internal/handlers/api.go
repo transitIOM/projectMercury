@@ -27,7 +27,7 @@ import (
 
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
-// @name Authorization
+// @name X-API-Key
 func Handler(r *chi.Mux) {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
