@@ -157,7 +157,12 @@ func GetLatestMessageLog() (messageLog bytes.Buffer, err error) {
 		log.Error(err)
 		return bytes.Buffer{}, err
 	}
-	defer r.Close()
+	defer func(r *minio.Object) {
+		err := r.Close()
+		if err != nil {
+			log.Error(err)
+		}
+	}(r)
 
 	_, err = messageLog.ReadFrom(r)
 	if err != nil {

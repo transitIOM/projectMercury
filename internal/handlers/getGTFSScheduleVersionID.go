@@ -19,12 +19,7 @@ import (
 // @Router       /schedule/version [get]
 func GetGTFSScheduleVersionID(w http.ResponseWriter, r *http.Request) {
 
-	versionID, err := tools.GetLatestGTFSScheduleVersionID()
-	if err != nil {
-		log.Error(err)
-		api.InternalErrorHandler(w)
-		return
-	}
+	versionID := tools.GetLatestMessageVersion()
 
 	response := api.GetVersionIDResponse{
 		Code:    http.StatusOK,
@@ -32,7 +27,7 @@ func GetGTFSScheduleVersionID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(response)
+	err := json.NewEncoder(w).Encode(response)
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
