@@ -9,7 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
+        "termsOfService": "coming soon",
         "contact": {
             "name": "Jayden Thompson",
             "email": "admin@transitIOM.com"
@@ -325,8 +325,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8090",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Project Mercury API",
-	Description:      "The transitIOM REST API",
+	Title:            "Project Mercury",
+	Description:      "The REST API serving everything needed for the transitIOM app",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
