@@ -10,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/joho/godotenv"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	log "github.com/sirupsen/logrus"
@@ -27,24 +26,32 @@ var (
 	messagingMutex      = sync.RWMutex{}
 )
 
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
+func InitializeMinio() {
 	accessKey := os.Getenv("MINIO_ACCESS_KEY")
 	secretKey := os.Getenv("MINIO_SECRET_KEY")
 	endpoint := os.Getenv("MINIO_ENDPOINT")
 
 	ctx = context.Background()
 
-	c, err = minio.New(endpoint, &minio.Options{
-		Secure: false,
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-	})
-	if err != nil {
-		log.Fatal(err)
+	for {
+		var err error
+		c, err = minio.New(endpoint, &minio.Options{
+			Secure: false,
+			Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+		})
+
+		if err == nil {
+			_, err = c.ListBuckets(ctx)
+		}
+
+		if err != nil {
+			log.Errorf("Minio connection failed: %v. Retrying in 1 minute...", err)
+			time.Sleep(1 * time.Minute)
+			continue
+		}
+
+		log.Info("Successfully connected to Minio")
+		break
 	}
 
 	gtfsBucketOpt := bucketOptions{

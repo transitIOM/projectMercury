@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/transitIOM/projectMercury/internal/handlers"
+	"github.com/transitIOM/projectMercury/internal/tools"
 )
 
 func init() {
@@ -27,6 +28,9 @@ func init() {
 
 func main() {
 	log.SetReportCaller(true)
+
+	tools.InitializeMinio()
+
 	r := chi.NewRouter()
 	handlers.Handler(r)
 
