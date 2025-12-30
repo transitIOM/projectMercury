@@ -146,12 +146,18 @@ func AppendMessage(b *bytes.Buffer) (versionID string, err error) {
 	_, err = c.StatObject(ctx, messagingBucketName, messagingObjectName, minio.StatObjectOptions{})
 	if err == nil {
 		r, err := c.GetObject(ctx, messagingBucketName, messagingObjectName, minio.GetObjectOptions{})
-		if err == nil {
-			defer r.Close()
-			_, err = existingData.ReadFrom(r)
+		if err != nil {
+			return "", fmt.Errorf("failed to get existing message log: %w", err)
+		}
+		defer func(r *minio.Object) {
+			err := r.Close()
 			if err != nil {
-				return "", fmt.Errorf("failed to read existing message log: %w", err)
+				log.Error(err)
 			}
+		}(r)
+		_, err = existingData.ReadFrom(r)
+		if err != nil {
+			return "", fmt.Errorf("failed to read existing message log: %w", err)
 		}
 	} else {
 		if minio.ToErrorResponse(err).Code != "NoSuchKey" {
