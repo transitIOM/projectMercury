@@ -18,6 +18,7 @@ import (
 // @Failure      500  {object}  api.Error
 // @Router       /schedule/version [get]
 func GetGTFSScheduleVersionID(w http.ResponseWriter, r *http.Request) {
+	log.Debug("Handling GetGTFSScheduleVersionID request")
 
 	versionID, err := tools.GetLatestMessageVersion()
 	if err != nil {
@@ -26,6 +27,7 @@ func GetGTFSScheduleVersionID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debugf("Retrieved GTFS schedule version ID: %s", versionID)
 	response := api.GetVersionIDResponse{
 		Code:    http.StatusOK,
 		Version: versionID,

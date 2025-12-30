@@ -18,6 +18,7 @@ import (
 // @Failure      500  {object}  api.Error
 // @Router       /messages/version [get]
 func GetMessageLogVersionID(w http.ResponseWriter, r *http.Request) {
+	log.Debug("Handling GetMessageLogVersionID request")
 
 	versionID, err := tools.GetLatestMessageLogVersionID()
 	if err != nil {
@@ -26,6 +27,7 @@ func GetMessageLogVersionID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debugf("Retrieved message log version ID: %s", versionID)
 	response := api.GetVersionIDResponse{
 		Code:    http.StatusOK,
 		Version: versionID,

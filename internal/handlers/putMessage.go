@@ -22,13 +22,16 @@ import (
 // @Failure      500  {object}  api.Error
 // @Router       /messages/ [put]
 func PutMessage(w http.ResponseWriter, r *http.Request) {
+	log.Debug("Handling PutMessage request")
 	message := r.FormValue("message")
 
 	if message == "" {
+		log.Debug("Message parameter missing in request")
 		http.Error(w, "message parameter is required", http.StatusBadRequest)
 		return
 	}
 
+	log.Debugf("Received message to store: %s", message)
 	err := tools.PushMessageToStorage(message)
 	if err != nil {
 		log.Error(err)

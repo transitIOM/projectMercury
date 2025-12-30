@@ -18,6 +18,7 @@ import (
 // @Failure      500  {object}  api.Error
 // @Router       /messages/ [get]
 func GetMessages(w http.ResponseWriter, r *http.Request) {
+	log.Debug("Handling GetMessages request")
 	messageCount := 3
 	b, err := tools.GetLastNLines(messageCount)
 	if err != nil {
@@ -25,6 +26,7 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 		api.InternalErrorHandler(w)
 		return
 	}
+	log.Debugf("Retrieved %d bytes from message log", b.Len())
 	v, err := tools.GetLatestMessageVersion()
 	if err != nil {
 		log.Error(err)

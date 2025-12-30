@@ -18,6 +18,7 @@ import (
 // @Failure      500  {object}  api.Error
 // @Router       /schedule/ [get]
 func GetGTFSScheduleDownloadURL(w http.ResponseWriter, r *http.Request) {
+	log.Debug("Handling GetGTFSScheduleDownloadURL request")
 
 	downloadURL, versionID, err := tools.GetLatestGTFSScheduleURL()
 	if err != nil {
@@ -26,6 +27,7 @@ func GetGTFSScheduleDownloadURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debugf("Retrieved GTFS schedule download URL and version ID: %s", versionID)
 	response := api.GetTimetableResponse{
 		Code:        http.StatusOK,
 		DownloadURL: downloadURL.String(),

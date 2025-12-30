@@ -25,18 +25,22 @@ import (
 // @Failure      500  {object}  api.Error
 // @Router       /schedule/ [put]
 func PutGTFSSchedule(w http.ResponseWriter, r *http.Request) {
+	log.Debug("Handling PutGTFSSchedule request")
 	file, fileHeader, err := r.FormFile("GTFSSchedule")
 	if err != nil {
+		log.Errorf("Error getting form file: %v", err)
 		api.InternalErrorHandler(w)
 		return
 	}
+	log.Debugf("Received file: %s, size: %d", fileHeader.Filename, fileHeader.Size)
 	defer func(file multipart.File) {
 		err = file.Close()
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
 		}
 	}(file)
 	filetype := fileHeader.Header.Get("Content-Type")
+	log.Debugf("File content type: %s", filetype)
 	if (filetype != "application/zip") && (filetype != "application/x-zip-compressed") {
 		err = fmt.Errorf("unsupported file type: %s. Please upload a GTFS schedule .zip package", filetype)
 		api.RequestErrorHandler(w, err)

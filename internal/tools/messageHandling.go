@@ -46,7 +46,7 @@ func PushMessageToStorage(message string) (err error) {
 	if err != nil {
 		return err
 	}
-	log.Infof("Added message: %v", b)
+	log.Debugf("Added message: %v", b)
 
 	err = pullDataFromStorage()
 	if err != nil {

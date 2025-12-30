@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -23,7 +22,7 @@ func init() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Debug(err)
+		log.Warn("Could not load .env file, using environment variables")
 	}
 }
 
@@ -41,7 +40,7 @@ func main() {
 	}
 
 	go func() {
-		fmt.Println("Starting transit-IOMAPI service...")
+		log.Info("Starting transit-IOMAPI service...")
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}

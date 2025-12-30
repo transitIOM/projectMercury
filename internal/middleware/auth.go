@@ -37,8 +37,10 @@ func init() {
 
 func APIKeyAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Debug("Authenticating request")
 		headerKey := r.Header.Get("X-API-Key")
 		if headerKey == "" {
+			log.Debug("X-API-Key header missing")
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			return
 		}
@@ -49,10 +51,12 @@ func APIKeyAuth(next http.Handler) http.Handler {
 		userHash := hex.EncodeToString(h.Sum(nil))
 
 		if subtle.ConstantTimeCompare([]byte(userHash), []byte(expectedHash)) != 1 {
+			log.Debug("API key hash mismatch")
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			return
 		}
 
+		log.Debug("Authentication successful")
 		// add info to context
 		//ctx := context.WithValue(r.Context(), apiKeyCtxKey, "admin")
 

@@ -82,12 +82,16 @@ func makeBucket(options bucketOptions) {
 		log.Error(err)
 	}
 	if !exists {
+		log.Debugf("Creating bucket: %s", options.name)
 		err = c.MakeBucket(ctx, options.name, options.makeBucketOptions)
 		if err != nil {
 			log.Error(err)
 		}
+	} else {
+		log.Debugf("Bucket already exists: %s", options.name)
 	}
 
+	log.Debugf("Setting versioning for bucket: %s", options.name)
 	err = c.SetBucketVersioning(ctx, options.name, options.versioningConfig)
 	if err != nil {
 		log.Error(err)
@@ -102,11 +106,13 @@ func GetLatestGTFSScheduleVersionID() (versionID string, err error) {
 	gtfsMutex.RLock()
 	defer gtfsMutex.RUnlock()
 
+	log.Debugf("Getting attributes for %s/%s", bucketName, objectName)
 	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
 	if err != nil {
 		return "", err
 	}
 
+	log.Debugf("Latest GTFS version ID: %s", attributes.VersionID)
 	return attributes.VersionID, nil
 }
 
@@ -138,10 +144,12 @@ func PutLatestGTFSSchedule(reader io.Reader, fileSize int64) (versionID string, 
 	gtfsMutex.Lock()
 	defer gtfsMutex.Unlock()
 
+	log.Debugf("Uploading %s to %s, size: %d", gtfsObjectName, gtfsBucketName, fileSize)
 	uploadInfo, err := c.PutObject(ctx, gtfsBucketName, gtfsObjectName, reader, fileSize, minio.PutObjectOptions{ContentType: "application/zip"})
 	if err != nil {
 		return "", err
 	}
+	log.Debugf("Successfully uploaded %s, version ID: %s", gtfsObjectName, uploadInfo.VersionID)
 	return uploadInfo.VersionID, nil
 }
 
@@ -150,8 +158,10 @@ func AppendMessage(b *bytes.Buffer) (versionID string, err error) {
 	defer messagingMutex.Unlock()
 	existingData := bytes.Buffer{}
 
+	log.Debugf("Checking if %s exists in %s", messagingObjectName, messagingBucketName)
 	_, err = c.StatObject(ctx, messagingBucketName, messagingObjectName, minio.StatObjectOptions{})
 	if err == nil {
+		log.Debugf("Retrieving existing %s", messagingObjectName)
 		r, err := c.GetObject(ctx, messagingBucketName, messagingObjectName, minio.GetObjectOptions{})
 		if err != nil {
 			return "", fmt.Errorf("failed to get existing message log: %w", err)
@@ -170,14 +180,17 @@ func AppendMessage(b *bytes.Buffer) (versionID string, err error) {
 		if minio.ToErrorResponse(err).Code != "NoSuchKey" {
 			return "", fmt.Errorf("failed to check message log existence: %w", err)
 		}
+		log.Debug("Message log does not exist, starting new one")
 	}
 
+	log.Debug("Appending new message to existing data")
 	_, err = existingData.ReadFrom(b)
 	if err != nil {
 		return "", err
 	}
 
 	updatedReader := bytes.NewReader(existingData.Bytes())
+	log.Debugf("Uploading updated %s to %s, total size: %d", messagingObjectName, messagingBucketName, existingData.Len())
 	uploadInfo, err := c.PutObject(ctx, messagingBucketName, messagingObjectName, updatedReader, int64(existingData.Len()), minio.PutObjectOptions{
 		ContentType: "text/jsonl",
 	})
@@ -185,6 +198,7 @@ func AppendMessage(b *bytes.Buffer) (versionID string, err error) {
 	if err != nil {
 		return "", err
 	}
+	log.Debugf("Successfully updated %s, version ID: %s", messagingObjectName, uploadInfo.VersionID)
 	return uploadInfo.VersionID, nil
 }
 
@@ -196,6 +210,7 @@ func GetLatestMessageLog() (messageLog bytes.Buffer, err error) {
 	messagingMutex.RLock()
 	defer messagingMutex.RUnlock()
 
+	log.Debugf("Retrieving %s from %s", objectName, bucketName)
 	r, err := c.GetObject(ctx, bucketName, objectName, minio.GetObjectOptions{})
 	if err != nil {
 		return bytes.Buffer{}, err
@@ -212,6 +227,7 @@ func GetLatestMessageLog() (messageLog bytes.Buffer, err error) {
 		return bytes.Buffer{}, err
 	}
 
+	log.Debugf("Successfully retrieved message log, size: %d bytes", messageLog.Len())
 	return messageLog, nil
 }
 
@@ -223,10 +239,12 @@ func GetLatestMessageLogVersionID() (versionID string, err error) {
 	messagingMutex.RLock()
 	defer messagingMutex.RUnlock()
 
+	log.Debugf("Getting attributes for %s/%s", bucketName, objectName)
 	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
 	if err != nil {
 		return "", err
 	}
 
+	log.Debugf("Latest message log version ID: %s", attributes.VersionID)
 	return attributes.VersionID, nil
 }
