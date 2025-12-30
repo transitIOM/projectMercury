@@ -142,21 +142,20 @@ func AppendMessage(b *bytes.Buffer) (versionID string, err error) {
 	messagingMutex.Lock()
 	defer messagingMutex.Unlock()
 	existingData := bytes.Buffer{}
-	r, err := c.GetObject(ctx, messagingBucketName, messagingObjectName, minio.GetObjectOptions{})
-	if err != nil {
-		if minio.ToErrorResponse(err).Code != "NoSuchKey" {
-			return "", err
+
+	_, err = c.StatObject(ctx, messagingBucketName, messagingObjectName, minio.StatObjectOptions{})
+	if err == nil {
+		r, err := c.GetObject(ctx, messagingBucketName, messagingObjectName, minio.GetObjectOptions{})
+		if err == nil {
+			defer r.Close()
+			_, err = existingData.ReadFrom(r)
+			if err != nil {
+				return "", fmt.Errorf("failed to read existing message log: %w", err)
+			}
 		}
 	} else {
-		defer func(r *minio.Object) {
-			err := r.Close()
-			if err != nil {
-
-			}
-		}(r)
-		_, err = existingData.ReadFrom(r)
-		if err != nil {
-			return "", err
+		if minio.ToErrorResponse(err).Code != "NoSuchKey" {
+			return "", fmt.Errorf("failed to check message log existence: %w", err)
 		}
 	}
 
