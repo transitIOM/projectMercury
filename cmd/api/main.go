@@ -21,8 +21,9 @@ func init() {
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.DebugLevel)
 
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("No .env file found")
+	err := godotenv.Load()
+	if err != nil {
+		log.Debug(err)
 	}
 }
 
