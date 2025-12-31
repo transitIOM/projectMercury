@@ -22,8 +22,8 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      https://transitiom.com
-// @BasePath  /api/v1
+// @host      https://api.transitiom.com
+// @BasePath  /v1
 
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
@@ -68,5 +68,5 @@ func Handler(r *chi.Mux) {
 		})
 	})
 
-	r.Mount("/api/v1", v1)
+	r.Mount("/v1", v1)
 }

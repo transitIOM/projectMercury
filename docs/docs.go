@@ -321,9 +321,9 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.1.0",
-	Host:             "localhost:8090",
-	BasePath:         "/api/v1",
+	Version:          "v1.0.0-beta.1",
+	Host:             "https://api.transitiom.com",
+	BasePath:         "/v1",
 	Schemes:          []string{},
 	Title:            "Project Mercury",
 	Description:      "The REST API serving everything needed for the transitIOM app",
