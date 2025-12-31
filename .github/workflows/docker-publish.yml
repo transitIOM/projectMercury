@@ -39,7 +39,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
+            type=ref,event=branch,enable=${{ !startsWith(github.ref, 'refs/heads/release/') }}
+            type=ref,event=branch,pattern=rc-{{name}},enable=${{ startsWith(github.ref, 'refs/heads/release/') }}
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
