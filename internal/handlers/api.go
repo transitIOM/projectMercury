@@ -12,7 +12,7 @@ import (
 )
 
 // @title           Project Mercury
-// @version         0.1.0
+// @version         v1.0.0-beta.1
 // @description     The REST API serving everything needed for the transitIOM app
 // @termsOfService  coming soon
 
@@ -22,8 +22,8 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      localhost:8090
-// @BasePath  /api/v1
+// @host      api.transitiom.com
+// @BasePath  /v1
 
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
@@ -68,5 +68,5 @@ func Handler(r *chi.Mux) {
 		})
 	})
 
-	r.Mount("/api/v1", v1)
+	r.Mount("/v1", v1)
 }

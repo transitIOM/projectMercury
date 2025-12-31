@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /v1
 definitions:
   api.Error:
     properties:
@@ -60,7 +60,7 @@ definitions:
         example: 20231215-143022
         type: string
     type: object
-host: localhost:8090
+host: https://api.transitiom.com
 info:
   contact:
     email: admin@transitIOM.com
@@ -71,7 +71,7 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: coming soon
   title: Project Mercury
-  version: 0.1.0
+  version: v1.0.0-beta.1
 paths:
   /messages/:
     get:
