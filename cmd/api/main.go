@@ -16,14 +16,32 @@ import (
 )
 
 func init() {
-	//log.SetFormatter(&log.JSONFormatter{})
-	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
-
 	err := godotenv.Load()
 	if err != nil {
 		log.Warn("Could not load .env file, using environment variables")
 	}
+
+	// Set log format
+	logFormat := os.Getenv("LOG_FORMAT")
+	if logFormat == "text" {
+		log.SetFormatter(&log.TextFormatter{
+			FullTimestamp: true,
+		})
+	} else {
+		log.SetFormatter(&log.JSONFormatter{})
+	}
+
+	// Set log level
+	logLevelStr := os.Getenv("LOG_LEVEL")
+	if logLevelStr == "" {
+		logLevelStr = "info"
+	}
+	logLevel, err := log.ParseLevel(logLevelStr)
+	if err != nil {
+		log.Warnf("Invalid LOG_LEVEL '%s', defaulting to 'info'", logLevelStr)
+		logLevel = log.InfoLevel
+	}
+	log.SetLevel(logLevel)
 }
 
 func main() {
