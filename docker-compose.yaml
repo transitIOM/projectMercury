@@ -1,8 +1,8 @@
 services:
     api:
-        image: ghcr.io/transitiom/projectmercury:main
+        image: ghcr.io/transitiom/projectmercury:latest
         ports:
-            - "8090:8090"
+            - "8090:8080"
         depends_on:
             minio:
                 condition: service_healthy
