@@ -50,7 +50,7 @@ func PostReport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Debug("Received report")
-	err := tools.CreateIssueFromReport(ctx, props.Title, props.Description, props.Description, tags)
+	err := tools.CreateIssueFromReport(ctx, props.Title, props.Description, props.Email, tags)
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
