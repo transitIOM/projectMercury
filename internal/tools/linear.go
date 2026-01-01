@@ -14,6 +14,9 @@ var client *graphql.Client
 
 func InitialiseLinearGraphqlConnection() {
 	linearAPIKey := os.Getenv("LINEAR_API_KEY")
+	if linearAPIKey == "" {
+		log.Fatal("LINEAR_API_KEY environment variable not set")
+	}
 
 	client = graphql.NewClient("https://api.linear.app/graphql", nil)
 
