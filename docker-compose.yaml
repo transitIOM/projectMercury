@@ -1,8 +1,11 @@
+version: '3.7'
+
 services:
     api:
-        image: ghcr.io/transitiom/projectmercury:main
+        image: ghcr.io/transitiom/projectmercury:latest
+        env_file: .env
         ports:
-            - "8090:8090"
+            - "8090:8080"
         depends_on:
             minio:
                 condition: service_healthy
@@ -10,6 +13,7 @@ services:
     minio:
         image: quay.io/minio/minio:latest
         container_name: minio
+        env_file: .env
         command: server --console-address ":9001" /data
         ports:
             - "9000:9000"
