@@ -60,7 +60,7 @@ definitions:
         example: 20231215-143022
         type: string
     type: object
-host: https://api.transitiom.com
+host: api.transitiom.com
 info:
   contact:
     email: admin@transitIOM.com
@@ -137,6 +137,46 @@ paths:
       summary: Get latest message log version ID
       tags:
       - messages
+  /report/:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Submits a new report with title, description, email, and category.
+      parameters:
+      - description: Report title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Report description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Reporter email
+        in: formData
+        name: email
+        type: string
+      - description: Report category
+        in: formData
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Submit a new report
+      tags:
+      - report
   /schedule/:
     get:
       description: Retrieves the download URL and version ID of the latest GTFS schedule.

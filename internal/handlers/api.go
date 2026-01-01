@@ -29,8 +29,8 @@ import (
 // @in header
 // @name X-API-Key
 func Handler(r *chi.Mux) {
-	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
+	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.StripSlashes)
 	r.Use(middleware.Timeout(30 * time.Second))
@@ -41,7 +41,7 @@ func Handler(r *chi.Mux) {
 
 	// GTFS schedule public endpoint v1
 	v1.Route("/schedule", func(r chi.Router) {
-		r.Use(httprate.LimitByIP(5, time.Minute))
+		r.Use(httprate.LimitByIP(60, time.Minute))
 
 		// public routes
 		r.Group(func(r chi.Router) {
@@ -57,7 +57,7 @@ func Handler(r *chi.Mux) {
 	})
 
 	v1.Route("/messages", func(r chi.Router) {
-		r.Use(httprate.LimitByIP(5, time.Minute))
+		r.Use(httprate.LimitByIP(60, time.Minute))
 		r.Group(func(r chi.Router) {
 			r.Get("/", GetMessages)
 			r.Get("/version", GetMessageLogVersionID)
@@ -66,6 +66,11 @@ func Handler(r *chi.Mux) {
 			r.Use(internalMiddleware.APIKeyAuth)
 			r.Put("/", PutMessage)
 		})
+	})
+
+	v1.Route("/report", func(r chi.Router) {
+		r.Use(httprate.LimitByIP(2, time.Second*30))
+		r.Post("/", PostReport)
 	})
 
 	r.Mount("/v1", v1)

@@ -48,6 +48,7 @@ func main() {
 	log.SetReportCaller(true)
 
 	tools.InitializeMinio()
+	tools.InitialiseLinearGraphqlConnection()
 
 	r := chi.NewRouter()
 	handlers.Handler(r)
