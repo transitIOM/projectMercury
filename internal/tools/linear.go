@@ -73,7 +73,7 @@ func CreateIssueFromReport(ctx context.Context, title, description, email string
 		return fmt.Errorf("issue creation failed")
 	}
 
-	log.Debug("Created issue: %s (%s)",
+	log.Debugf("Created issue: %s (%s)",
 		mutation.IssueCreate.Issue.Identifier,
 		mutation.IssueCreate.Issue.URL)
 
