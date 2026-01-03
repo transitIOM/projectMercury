@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	"regexp"
+	"net/mail"
 	"slices"
 
 	log "github.com/sirupsen/logrus"
@@ -89,7 +89,7 @@ func PostReport(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func isEmailValid(e string) bool {
-	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-	return emailRegex.MatchString(e)
+func isEmailValid(email string) bool {
+	emailAddress, err := mail.ParseAddress(email)
+	return err == nil && emailAddress.Address == email
 }
