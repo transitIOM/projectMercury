@@ -34,6 +34,11 @@ type PutMessageResponse struct {
 	VersionID string `json:"versionID" example:"5e4b7d12-542f-4ecf-8d95-7fbec7f7e806"`
 }
 
+type GetBusLocationsResponse struct {
+	Code      int    `json:"code" example:"200"`
+	Locations string `json:"locations" example:"{\"bus_id\":\"123\",\"departure_time\":\"1212\",\"route_number\":\"12\",\"direction\":\"outbound\",\"latitude\":54.120918,\"longitude\":-4.580032,\"timestamp\":\"0001-01-01T00:00:00Z\"}"`
+}
+
 type PostReportBody struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`

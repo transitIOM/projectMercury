@@ -9,6 +9,15 @@ definitions:
         example: Internal Server Error
         type: string
     type: object
+  api.GetBusLocationsResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      locations:
+        example: '{"bus_id":"123","departure_time":"1212","route_number":"12","direction":"outbound","latitude":54.120918,"longitude":-4.580032,"timestamp":"0001-01-01T00:00:00Z"}'
+        type: string
+    type: object
   api.GetMessagesResponse:
     properties:
       code:
@@ -73,6 +82,23 @@ info:
   title: Project Mercury
   version: v1.0.0-beta.1
 paths:
+  /locations/:
+    get:
+      description: Retrieves real-time GPS locations for all active buses.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GetBusLocationsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Get current bus locations
+      tags:
+      - locations
   /messages/:
     get:
       description: Retrieves the last 3 lines of the message log and the version ID.
