@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/transitIOM/projectMercury/api"
@@ -23,7 +22,6 @@ func GetBusLocations(w http.ResponseWriter, r *http.Request) {
 	tools.BusLocations.Mutex.RLock()
 	memBusLocations := tools.BusLocations.Data
 	tools.BusLocations.Mutex.RUnlock()
-	nullifyObsoleteValues(&memBusLocations)
 
 	busLocationsBytes, err := json.Marshal(memBusLocations)
 	if err != nil {
@@ -46,14 +44,5 @@ func GetBusLocations(w http.ResponseWriter, r *http.Request) {
 		log.Error(err)
 		api.InternalErrorHandler(w)
 		return
-	}
-}
-
-func nullifyObsoleteValues(busLocations *[]tools.BusLocation) {
-	for i := range *busLocations {
-		(*busLocations)[i].DriverNumber = ""
-		(*busLocations)[i].Timestamp = time.Time{}
-		(*busLocations)[i].Unknown1 = 0
-		(*busLocations)[i].Unknown2 = ""
 	}
 }
