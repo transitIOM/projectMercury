@@ -62,21 +62,14 @@ func Handler(r *chi.Mux) {
 
 	v1.Route("/messages", func(r chi.Router) {
 		r.Use(httprate.LimitByIP(60, time.Minute))
-		// public routes
 		r.Group(func(r chi.Router) {
 			r.Get("/", GetMessages)
 			r.Get("/version", GetMessageLogVersionID)
 		})
-		// private routes
 		r.Group(func(r chi.Router) {
 			r.Use(internalMiddleware.APIKeyAuth)
 			r.Put("/", PutMessage)
 		})
-	})
-
-	v1.Route("/locations", func(r chi.Router) {
-		r.Use(httprate.LimitByIP(3, time.Second))
-		r.Get("/", GetBusLocations)
 	})
 
 	v1.Route("/report", func(r chi.Router) {
