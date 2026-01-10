@@ -137,7 +137,6 @@ const docTemplate = `{
                 "summary": "Submit a new report",
                 "parameters": [
                     {
-                        "maxLength": 300,
                         "type": "string",
                         "description": "Report title",
                         "name": "title",
@@ -145,7 +144,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "maxLength": 4000,
                         "type": "string",
                         "description": "Report description",
                         "name": "description",
@@ -153,18 +151,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "maxLength": 50,
                         "type": "string",
                         "description": "Reporter email",
                         "name": "email",
                         "in": "formData"
                     },
                     {
-                        "enum": [
-                            "schedule",
-                            "realtime",
-                            "bug"
-                        ],
                         "type": "string",
                         "description": "Report category",
                         "name": "category",
