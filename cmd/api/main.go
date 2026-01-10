@@ -48,9 +48,10 @@ func init() {
 func main() {
 	log.SetReportCaller(true)
 
+	browserCtx, browserCancel := context.WithCancel(context.Background())
 	tools.InitializeMinio()
 	tools.InitialiseLinearGraphqlConnection()
-	go tools.InitializeBrowser()
+	go tools.InitializeBrowser(browserCtx)
 
 	r := chi.NewRouter()
 	handlers.Handler(r)
@@ -84,6 +85,7 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server forced to shutdown: ", err)
 	}
-
+	browserCancel()
+	time.Sleep(100 * time.Millisecond)
 	log.Info("Server exiting")
 }

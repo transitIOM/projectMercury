@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -44,7 +45,7 @@ func init() {
 	BusLocations.expiry = expiryTime
 }
 
-func InitializeBrowser() {
+func InitializeBrowser(ctx context.Context) {
 	browser := rod.New().MustConnect()
 	defer browser.MustClose()
 
@@ -91,7 +92,8 @@ func InitializeBrowser() {
 
 	page.MustWaitLoad()
 
-	select {}
+	<-ctx.Done()
+	log.Info("browser closed gracefully")
 }
 
 func updateInMemBusLocations(response string) (err error) {
