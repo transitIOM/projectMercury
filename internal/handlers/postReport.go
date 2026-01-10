@@ -70,7 +70,11 @@ func PostReport(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "email address exceeds maximum length of 50 characters", http.StatusBadRequest)
 		return
 	}
-	validEmail := isEmailValid(props.Email)
+	validEmail, err := regexp.MatchString("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", props.Email)
+	if err != nil {
+		log.Error(err)
+		api.InternalErrorHandler(w)
+	}
 	if !validEmail {
 		log.Debug("Invalid email address")
 		http.Error(w, "invalid email address", http.StatusBadRequest)
@@ -78,7 +82,7 @@ func PostReport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Debug("Received valid report")
-	err := tools.CreateIssueFromReport(ctx, props.Title, props.Description, props.Email, tags)
+	err = tools.CreateIssueFromReport(ctx, props.Title, props.Description, props.Email, tags)
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
@@ -87,9 +91,4 @@ func PostReport(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-}
-
-func isEmailValid(e string) bool {
-	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-	return emailRegex.MatchString(e)
 }
