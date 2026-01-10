@@ -34,13 +34,6 @@ type PutMessageResponse struct {
 	VersionID string `json:"versionID" example:"5e4b7d12-542f-4ecf-8d95-7fbec7f7e806"`
 }
 
-type PostReportBody struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Email       string `json:"email"`
-	Category    string `json:"category"`
-}
-
 type Error struct {
 	Code    int    `json:"code" example:"500"`
 	Message string `json:"message" example:"Internal Server Error"`

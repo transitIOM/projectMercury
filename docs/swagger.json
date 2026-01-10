@@ -14,7 +14,7 @@
         },
         "version": "v1.0.0-beta.1"
     },
-    "host": "api.transitiom.com",
+    "host": "https://api.transitiom.com",
     "basePath": "/v1",
     "paths": {
         "/messages/": {
@@ -105,74 +105,6 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/api.GetVersionIDResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/report/": {
-            "post": {
-                "description": "Submits a new report with title, description, email, and category.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "report"
-                ],
-                "summary": "Submit a new report",
-                "parameters": [
-                    {
-                        "maxLength": 300,
-                        "type": "string",
-                        "description": "Report title",
-                        "name": "title",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "maxLength": 4000,
-                        "type": "string",
-                        "description": "Report description",
-                        "name": "description",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "maxLength": 50,
-                        "type": "string",
-                        "description": "Reporter email",
-                        "name": "email",
-                        "in": "formData"
-                    },
-                    {
-                        "enum": [
-                            "schedule",
-                            "realtime",
-                            "bug"
-                        ],
-                        "type": "string",
-                        "description": "Report category",
-                        "name": "category",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.Error"
                         }
                     },
                     "500": {
