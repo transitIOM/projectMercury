@@ -13,35 +13,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const expiryTime = time.Minute * 2
-
 var BusLocations struct {
-	Buses  map[string]*TrackedBus
-	Mutex  sync.RWMutex
-	expiry time.Duration
-}
-
-type TrackedBus struct {
-	Location BusLocation
-	timer    *time.Timer
-}
-
-type BusLocation struct {
-	DriverNumber  string    `json:"-"`
-	BusID         string    `json:"bus_id"`
-	DepartureTime string    `json:"departure_time"`
-	RouteNumber   string    `json:"route_number"`
-	Direction     string    `json:"direction"`
-	Latitude      float64   `json:"latitude"`
-	Longitude     float64   `json:"longitude"`
-	Timestamp     time.Time `json:"-"`
-	Unknown1      int       `json:"-"`
-	Unknown2      string    `json:"-"`
-}
-
-func init() {
-	BusLocations.Buses = make(map[string]*TrackedBus)
-	BusLocations.expiry = expiryTime
+	Data  []BusLocation
+	Mutex sync.RWMutex
 }
 
 func InitializeBrowser() {
@@ -60,6 +34,7 @@ func InitializeBrowser() {
 			go func(id proto.NetworkRequestID, u string) {
 				result, err := proto.NetworkGetResponseBody{RequestID: id}.Call(page)
 				if err != nil {
+					// Request might be gone or empty
 					return
 				}
 
@@ -94,6 +69,19 @@ func InitializeBrowser() {
 	select {}
 }
 
+type BusLocation struct {
+	DriverNumber  string    `json:"-"`
+	BusID         string    `json:"bus_id"`
+	DepartureTime string    `json:"departure_time"`
+	RouteNumber   string    `json:"route_number"`
+	Direction     string    `json:"direction"`
+	Latitude      float64   `json:"latitude"`
+	Longitude     float64   `json:"longitude"`
+	Timestamp     time.Time `json:"-"`
+	Unknown1      int       `json:"-"`
+	Unknown2      string    `json:"-"`
+}
+
 func updateInMemBusLocations(response string) (err error) {
 	messages := strings.Split(response, "\x1e")
 	var allLocations []BusLocation
@@ -121,42 +109,8 @@ func updateInMemBusLocations(response string) (err error) {
 		return fmt.Errorf("no bus locations found in any message frame")
 	}
 
-	for _, loc := range allLocations {
-		if tracked, exists := BusLocations.Buses[loc.BusID]; exists {
-			tracked.timer.Stop()
-		}
-
-		timer := time.AfterFunc(BusLocations.expiry, func(busID string) func() {
-			return func() {
-				removeBus(busID)
-			}
-		}(loc.BusID))
-
-		BusLocations.Buses[loc.BusID] = &TrackedBus{
-			Location: loc,
-			timer:    timer,
-		}
-	}
-
+	BusLocations.Data = allLocations
 	return nil
-}
-
-func removeBus(busID string) {
-	BusLocations.Mutex.Lock()
-	defer BusLocations.Mutex.Unlock()
-	log.Debugf("Bus %s expired and removed", busID)
-	delete(BusLocations.Buses, busID)
-}
-
-func GetAllBuses() []BusLocation {
-	BusLocations.Mutex.RLock()
-	defer BusLocations.Mutex.RUnlock()
-
-	locations := make([]BusLocation, 0, len(BusLocations.Buses))
-	for _, tracked := range BusLocations.Buses {
-		locations = append(locations, tracked.Location)
-	}
-	return locations
 }
 
 type SignalRResponse struct {
