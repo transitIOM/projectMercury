@@ -23,32 +23,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/locations/": {
-            "get": {
-                "description": "Retrieves real-time GPS locations for all active buses.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "locations"
-                ],
-                "summary": "Get current bus locations",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.GetBusLocationsResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.Error"
-                        }
-                    }
-                }
-            }
-        },
         "/messages/": {
             "get": {
                 "description": "Retrieves the last 3 lines of the message log and the version ID.",
@@ -327,19 +301,6 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "Internal Server Error"
-                }
-            }
-        },
-        "api.GetBusLocationsResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 200
-                },
-                "locations": {
-                    "type": "string",
-                    "example": "{\"bus_id\":\"123\",\"departure_time\":\"1212\",\"route_number\":\"12\",\"direction\":\"outbound\",\"latitude\":54.120918,\"longitude\":-4.580032,\"timestamp\":\"0001-01-01T00:00:00Z\"}"
                 }
             }
         },
