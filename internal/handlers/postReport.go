@@ -35,7 +35,7 @@ func PostReport(w http.ResponseWriter, r *http.Request) {
 		Category:    r.FormValue("category"),
 	}
 
-	validTags := []string{"schedule", "realtime", "bug"}
+	validTags := []string{"schedule", "realtime", "bug", ""}
 	if !slices.Contains(validTags, props.Category) {
 		log.Debug("Invalid report category")
 		http.Error(w, "invalid report category", http.StatusBadRequest)
@@ -70,11 +70,12 @@ func PostReport(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "email address exceeds maximum length of 50 characters", http.StatusBadRequest)
 		return
 	}
-	validEmail := isEmailValid(props.Email)
-	if !validEmail {
-		log.Debug("Invalid email address")
-		http.Error(w, "invalid email address", http.StatusBadRequest)
-		return
+	if props.Email != "" {
+		if !isEmailValid(props.Email) {
+			log.Debug("Invalid email address")
+			http.Error(w, "invalid email address", http.StatusBadRequest)
+			return
+		}
 	}
 
 	log.Debug("Received valid report")
