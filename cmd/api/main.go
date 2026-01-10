@@ -50,8 +50,6 @@ func main() {
 	tools.InitializeMinio()
 	tools.InitialiseLinearGraphqlConnection()
 
-	tools.InitializeBrowser()
-
 	r := chi.NewRouter()
 	handlers.Handler(r)
 
