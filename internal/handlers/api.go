@@ -30,14 +30,10 @@ import (
 // @name X-API-Key
 func Handler(r *chi.Mux) {
 	r.Use(middleware.Logger)
-	r.Use(middleware.RealIP)
 	r.Use(middleware.RequestID)
-	r.Use(middleware.Timeout(30 * time.Second))
-	r.Use(middleware.ThrottleBacklog(50, 100, time.Second*30))
-	r.Use(middleware.StripSlashes)
-	r.Use(middleware.CleanPath)
 	r.Use(middleware.Recoverer)
-	r.Use(middleware.Heartbeat("/health"))
+	r.Use(middleware.StripSlashes)
+	r.Use(middleware.Timeout(30 * time.Second))
 
 	v1 := chi.NewRouter()
 
@@ -45,7 +41,7 @@ func Handler(r *chi.Mux) {
 
 	// GTFS schedule public endpoint v1
 	v1.Route("/schedule", func(r chi.Router) {
-		r.Use(httprate.LimitByIP(120, time.Minute))
+		r.Use(httprate.LimitByIP(60, time.Minute))
 
 		// public routes
 		r.Group(func(r chi.Router) {
