@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -20,8 +21,12 @@ import (
 func GetGTFSScheduleVersionID(w http.ResponseWriter, r *http.Request) {
 	log.Debug("Handling GetGTFSScheduleVersionID request")
 
-	versionID, err := tools.GetLatestMessageVersion()
+	versionID, err := tools.GetLatestGTFSScheduleVersionID()
 	if err != nil {
+		if errors.Is(err, tools.NoGTFSScheduleFound) {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
 		log.Error(err)
 		api.InternalErrorHandler(w)
 		return
@@ -34,6 +39,7 @@ func GetGTFSScheduleVersionID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.Code)
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
 		log.Error(err)

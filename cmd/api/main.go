@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
@@ -47,7 +48,10 @@ func init() {
 func main() {
 	log.SetReportCaller(true)
 
+	browserCtx, browserCancel := context.WithCancel(context.Background())
 	tools.InitializeMinio()
+	tools.InitialiseLinearGraphqlConnection()
+	go tools.InitializeBrowser(browserCtx)
 
 	r := chi.NewRouter()
 	handlers.Handler(r)
@@ -59,7 +63,7 @@ func main() {
 
 	go func() {
 		log.Info("Starting transit-IOMAPI service...")
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
@@ -81,6 +85,7 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server forced to shutdown: ", err)
 	}
-
+	browserCancel()
+	time.Sleep(100 * time.Millisecond)
 	log.Info("Server exiting")
 }
