@@ -24,13 +24,7 @@ func GetMessageLogVersionID(w http.ResponseWriter, r *http.Request) {
 	versionID, err := tools.GetLatestMessageLogVersionID()
 	if err != nil {
 		if errors.Is(err, tools.NoMessageLogFound) {
-			response := api.GetVersionIDResponse{
-				Code:    http.StatusNoContent,
-				Version: "",
-			}
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(response.Code)
-			err = json.NewEncoder(w).Encode(response)
+			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 		log.Error(err)
