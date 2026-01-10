@@ -70,16 +70,16 @@ func InitializeBrowser() {
 }
 
 type BusLocation struct {
-	DriverNumber  string    `json:"-"`
+	DriverNumber  string    `json:"driver_number,omitempty"`
 	BusID         string    `json:"bus_id"`
 	DepartureTime string    `json:"departure_time"`
 	RouteNumber   string    `json:"route_number"`
 	Direction     string    `json:"direction"`
 	Latitude      float64   `json:"latitude"`
 	Longitude     float64   `json:"longitude"`
-	Timestamp     time.Time `json:"-"`
-	Unknown1      int       `json:"-"`
-	Unknown2      string    `json:"-"`
+	Timestamp     time.Time `json:"timestamp"`
+	Unknown1      int       `json:"unknown1,omitempty"`
+	Unknown2      string    `json:"unknown2,omitempty"`
 }
 
 func updateInMemBusLocations(response string) (err error) {
