@@ -41,7 +41,12 @@ func PostReport(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid report category", http.StatusBadRequest)
 		return
 	}
-	tags := []string{"user-report", props.Category}
+	var tags []string
+	if props.Category != "" {
+		tags = []string{"user-report", props.Category}
+	} else {
+		tags = []string{"user-report"}
+	}
 
 	if props.Title == "" {
 		log.Debug("Title parameter missing in request")

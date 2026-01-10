@@ -61,7 +61,11 @@ func CreateIssueFromReport(ctx context.Context, title, description, email string
 
 	var tagIds []string
 	for _, tag := range tags {
-		tagIds = append(tagIds, tagUUIDMap[tag])
+		if id, ok := tagUUIDMap[tag]; ok {
+			tagIds = append(tagIds, id)
+		} else {
+			log.Warnf("Unknown tag: %s", tag)
+		}
 	}
 
 	variables := map[string]interface{}{
