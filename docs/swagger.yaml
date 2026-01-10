@@ -1,0 +1,256 @@
+basePath: /v1
+definitions:
+  api.Error:
+    properties:
+      code:
+        example: 500
+        type: integer
+      message:
+        example: Internal Server Error
+        type: string
+    type: object
+  api.GetMessagesResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      messages:
+        example: '{"timestamp": "2026-1-1T00:00:00.000Z", "message": "Example message"}'
+        type: string
+      versionID:
+        example: 5e4b7d12-542f-4ecf-8d95-7fbec7f7e806
+        type: string
+    type: object
+  api.GetTimetableResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      downloadURL:
+        example: https://example.com/GTFSSchedule.zip
+        type: string
+      versionID:
+        example: 20231215-143022
+        type: string
+    type: object
+  api.GetVersionIDResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      version:
+        example: 20231215-143022
+        type: string
+    type: object
+  api.PutMessageResponse:
+    properties:
+      code:
+        example: 202
+        type: integer
+      versionID:
+        example: 5e4b7d12-542f-4ecf-8d95-7fbec7f7e806
+        type: string
+    type: object
+  api.PutTimetableResponse:
+    properties:
+      code:
+        example: 202
+        type: integer
+      versionID:
+        example: 20231215-143022
+        type: string
+    type: object
+host: api.transitiom.com
+info:
+  contact:
+    email: admin@transitIOM.com
+    name: Jayden Thompson
+  description: The REST API serving everything needed for the transitIOM app
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: coming soon
+  title: Project Mercury
+  version: v1.0.0-beta.1
+paths:
+  /messages/:
+    get:
+      description: Retrieves the last 3 lines of the message log and the version ID.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GetMessagesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Get latest messages
+      tags:
+      - messages
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Uploads a new message to the message log.
+      parameters:
+      - description: Message content
+        in: formData
+        name: message
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/api.PutMessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Upload a new message
+      tags:
+      - messages
+  /messages/version:
+    get:
+      description: Retrieves the version ID of the latest message log.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GetVersionIDResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Get latest message log version ID
+      tags:
+      - messages
+  /report/:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Submits a new report with title, description, email, and category.
+      parameters:
+      - description: Report title
+        in: formData
+        maxLength: 300
+        name: title
+        required: true
+        type: string
+      - description: Report description
+        in: formData
+        maxLength: 4000
+        name: description
+        required: true
+        type: string
+      - description: Reporter email
+        in: formData
+        maxLength: 50
+        name: email
+        type: string
+      - description: Report category
+        enum:
+        - schedule
+        - realtime
+        - bug
+        in: formData
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Submit a new report
+      tags:
+      - report
+  /schedule/:
+    get:
+      description: Retrieves the download URL and version ID of the latest GTFS schedule.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GetTimetableResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Get latest GTFS schedule download URL
+      tags:
+      - schedule
+    put:
+      consumes:
+      - multipart/form-data
+      description: Uploads a new GTFS schedule (zip file).
+      parameters:
+      - description: GTFS Schedule zip file
+        in: formData
+        name: GTFSSchedule
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/api.PutTimetableResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Upload a new GTFS schedule
+      tags:
+      - schedule
+  /schedule/version:
+    get:
+      description: Retrieves the version ID of the latest GTFS schedule.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GetVersionIDResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Get latest GTFS schedule version ID
+      tags:
+      - schedule
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: X-API-Key
+    type: apiKey
+swagger: "2.0"

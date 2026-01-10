@@ -28,9 +28,8 @@ go.work.sum
 .env
 
 # Editor/IDE
+.idea/workspace.xml
+.idea/tasks.xml
 .idea/
 .vscode/
 bin/
-
-# docs
-docs/
