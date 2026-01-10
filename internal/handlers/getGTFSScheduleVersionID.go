@@ -20,7 +20,7 @@ import (
 func GetGTFSScheduleVersionID(w http.ResponseWriter, r *http.Request) {
 	log.Debug("Handling GetGTFSScheduleVersionID request")
 
-	versionID, err := tools.GetLatestMessageVersion()
+	versionID, err := tools.GetLatestGTFSScheduleVersionID()
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
