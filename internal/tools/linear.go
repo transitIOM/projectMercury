@@ -52,8 +52,6 @@ func CreateIssueFromReport(ctx context.Context, title, description, email string
 	var mutation IssueCreateMutation
 	teamID := "DEV"
 
-	description = fmt.Sprintf("Submitted by: %s\n\n%s", email, description)
-
 	variables := map[string]interface{}{
 		"input": IssueCreateInput{
 			Title:       title,
