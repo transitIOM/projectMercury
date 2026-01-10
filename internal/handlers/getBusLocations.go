@@ -19,8 +19,11 @@ import (
 // @Router       /locations/ [get]
 func GetBusLocations(w http.ResponseWriter, r *http.Request) {
 	log.Debug("Handling getBusLocations request")
+	tools.BusLocations.Mutex.RLock()
+	memBusLocations := tools.BusLocations.Data
+	tools.BusLocations.Mutex.RUnlock()
 
-	busLocationsBytes, err := json.Marshal(tools.GetAllBuses())
+	busLocationsBytes, err := json.Marshal(memBusLocations)
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
