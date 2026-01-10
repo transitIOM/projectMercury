@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"os"
 	"os/signal"
@@ -50,7 +49,8 @@ func main() {
 
 	tools.InitializeMinio()
 	tools.InitialiseLinearGraphqlConnection()
-	go tools.InitializeBrowser()
+
+	tools.InitializeBrowser()
 
 	r := chi.NewRouter()
 	handlers.Handler(r)
@@ -62,7 +62,7 @@ func main() {
 
 	go func() {
 		log.Info("Starting transit-IOMAPI service...")
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
