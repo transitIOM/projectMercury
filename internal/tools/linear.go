@@ -7,12 +7,11 @@ import (
 	"os"
 
 	"github.com/hasura/go-graphql-client"
-	log "github.com/sirupsen/logrus"
 )
 
 var client *graphql.Client
 
-func InitialiseLinearGraphqlConnection() {
+func initialiseLinearGraphqlConnection() {
 	linearAPIKey := os.Getenv("LINEAR_API_KEY")
 
 	client = graphql.NewClient("https://api.linear.app/graphql", nil)
@@ -38,24 +37,21 @@ type IssueCreateMutation struct {
 }
 
 type IssueCreateInput struct {
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	TeamID      string   `json:"teamId"`
-	Labels      []string `json:"labelIds,omitempty"`
-	Priority    int      `json:"priority,omitempty"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	TeamID      string `json:"teamId"`
+	Priority    int    `json:"priority,omitempty"`
 }
 
-func CreateIssueFromReport(ctx context.Context, title, description, email string, tags []string) error {
+func createIssueFromReport(ctx context.Context, title, description, teamID string) error {
 	var mutation IssueCreateMutation
-	teamID := "DEV"
 
 	variables := map[string]interface{}{
 		"input": IssueCreateInput{
 			Title:       title,
 			Description: description,
 			TeamID:      teamID,
-			Labels:      tags,
-			Priority:    0, // 0=None, 1=Urgent, 2=High, 3=Normal, 4=Low
+			Priority:    2, // 0=None, 1=Urgent, 2=High, 3=Normal, 4=Low
 		},
 	}
 
@@ -68,7 +64,7 @@ func CreateIssueFromReport(ctx context.Context, title, description, email string
 		return fmt.Errorf("issue creation failed")
 	}
 
-	log.Debug("Created issue: %s (%s)",
+	fmt.Printf("Created issue: %s (%s)\n",
 		mutation.IssueCreate.Issue.Identifier,
 		mutation.IssueCreate.Issue.URL)
 
