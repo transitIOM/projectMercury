@@ -145,26 +145,19 @@ paths:
       parameters:
       - description: Report title
         in: formData
-        maxLength: 300
         name: title
         required: true
         type: string
       - description: Report description
         in: formData
-        maxLength: 4000
         name: description
         required: true
         type: string
       - description: Reporter email
         in: formData
-        maxLength: 50
         name: email
         type: string
       - description: Report category
-        enum:
-        - schedule
-        - realtime
-        - bug
         in: formData
         name: category
         type: string
