@@ -1,30 +1,24 @@
-name: Build and Publish Docker Image
+name: Docker Build, Push, and GitHub Release
 
 on:
   push:
-    branches: [ "main", "develop", "release/*" ]
-    tags: [ 'v*.*.*' ]
-  pull_request:
-    branches: [ "main", "develop" ]
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 env:
-  REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push:
+  build-and-release:
+    name: Build and Release Production Docker Image
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -32,39 +26,55 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to the Container registry
-        if: github.event_name != 'pull_request'
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
+      - name: Extract version tag (Robust)
+        id: tag
+        uses: actions/github-script@v7
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch,enable=${{ !startsWith(github.ref, 'refs/heads/release/') }}
-            type=ref,event=branch,pattern={{name}},enable=${{ startsWith(github.ref, 'refs/heads/release/') }}
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-          labels: |
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.description=Transit-IOMAPI service for projectMercury
-            org.opencontainers.image.licenses=Apache-2.0
+          script: |
+            const ref = context.ref;
+            const version = ref.replace('refs/tags/', '');
+            const versionLowercase = version.toLowerCase();
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+            core.setOutput('VERSION', version);
+            core.setOutput('VERSION_LOWERCASE', versionLowercase);
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.VERSION_LOWERCASE }}
+            ghcr.io/${{ env.IMAGE_NAME }}:main
+            ghcr.io/${{ env.IMAGE_NAME }}:latest
+          platforms: linux/amd64
+
+      - name: Release
+        uses: softprops/gh-release-action@v2
+        with:
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          name: Release ${{ steps.tag.outputs.VERSION }}
+          body: |
+            ### Docker Image
+            The image for this release is available at:
+            
+            `ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.VERSION_LOWERCASE }}`
+
+            ---
+            
+            ## What's Changed
+            ${{ steps.release_notes.outputs.body }}
+            
+            ---
+            
+            ### Full Changelog
+            For a complete list of changes, please see the **[CHANGELOG.md]** file in the repository.
