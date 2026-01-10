@@ -3,6 +3,7 @@ package tools
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -24,6 +25,11 @@ var (
 	messagingBucketName = "messages"
 	messagingObjectName = "messages.jsonl"
 	messagingMutex      = sync.RWMutex{}
+)
+
+var (
+	NoGTFSScheduleFound = errors.New("no GTFS schedule found")
+	NoMessageLogFound   = errors.New("no message log found")
 )
 
 func InitializeMinio() {
@@ -109,6 +115,11 @@ func GetLatestGTFSScheduleVersionID() (versionID string, err error) {
 	log.Debugf("Getting attributes for %s/%s", bucketName, objectName)
 	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
 	if err != nil {
+		if err.Error() == "The specified key does not exist." {
+			log.Debug("No GTFS schedule found on server")
+			err = NoGTFSScheduleFound
+			return "", err
+		}
 		return "", err
 	}
 
@@ -128,6 +139,11 @@ func GetLatestGTFSScheduleURL() (downloadURL *url.URL, versionID string, err err
 	gtfsMutex.RUnlock()
 
 	if err != nil {
+		if err.Error() == "The specified key does not exist." {
+			log.Debug("No GTFS schedule found on server")
+			err = NoGTFSScheduleFound
+			return nil, "", err
+		}
 		return nil, "", err
 	}
 
@@ -242,6 +258,11 @@ func GetLatestMessageLogVersionID() (versionID string, err error) {
 	log.Debugf("Getting attributes for %s/%s", bucketName, objectName)
 	attributes, err := c.GetObjectAttributes(ctx, bucketName, objectName, minio.ObjectAttributesOptions{})
 	if err != nil {
+		if err.Error() == "The specified key does not exist." {
+			log.Debug("No message log found on server")
+			err = NoMessageLogFound
+			return "", err
+		}
 		return "", err
 	}
 
