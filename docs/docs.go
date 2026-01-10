@@ -122,66 +122,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/report/": {
-            "post": {
-                "description": "Submits a new report with title, description, email, and category.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "report"
-                ],
-                "summary": "Submit a new report",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Report title",
-                        "name": "title",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Report description",
-                        "name": "description",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Reporter email",
-                        "name": "email",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Report category",
-                        "name": "category",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.Error"
-                        }
-                    }
-                }
-            }
-        },
         "/schedule/": {
             "get": {
                 "description": "Retrieves the download URL and version ID of the latest GTFS schedule.",
@@ -382,7 +322,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "v1.0.0-beta.1",
-	Host:             "api.transitiom.com",
+	Host:             "https://api.transitiom.com",
 	BasePath:         "/v1",
 	Schemes:          []string{},
 	Title:            "Project Mercury",

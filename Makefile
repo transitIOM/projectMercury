@@ -1,5 +1,5 @@
 APP_NAME=projectMercury
-BINARY_NAME=bin/api
+BINARY_NAME=bin/api.exe
 MAIN_PACKAGE=./cmd/api
 DOCS_ENTRY=internal/handlers/api.go
 
