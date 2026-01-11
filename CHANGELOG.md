@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/transitIOM/projectMercury/tree/HEAD)
+## [v0.2.0](https://github.com/transitIOM/projectMercury/tree/v0.2.0) (2026-01-11)
 
-[Full Changelog](https://github.com/transitIOM/projectMercury/compare/v0.1.1...HEAD)
+[Full Changelog](https://github.com/transitIOM/projectMercury/compare/v0.1.1...v0.2.0)
 
 **Merged pull requests:**
 
