@@ -1,0 +1,38 @@
+name: Go Unit Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Go Unit Tests
+    runs-on: ubuntu-latest
+    
+    env:
+      API_KEY: "dummy-key-for-test-init"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Install swag
+  run: go install github.com/swaggo/swag/cmd/swag@latest
+  env:
+    GOBIN: /usr/local/go/bin
+    PATH: $PATH:/usr/local/go/bin
+
+      - name: Generate docs
+        run: make docs
+
+      - name: Run Tests
+        run: make test
