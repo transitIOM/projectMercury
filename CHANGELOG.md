@@ -1,16 +1,18 @@
 # Changelog
 
-## [v0.2.0](https://github.com/transitIOM/projectMercury/tree/v0.2.0) (2026-01-11)
+## [Unreleased](https://github.com/transitIOM/projectMercury/tree/HEAD)
 
-[Full Changelog](https://github.com/transitIOM/projectMercury/compare/v0.1.1...v0.2.0)
+[Full Changelog](https://github.com/transitIOM/projectMercury/compare/v0.2.0...HEAD)
 
 **Merged pull requests:**
 
-- feat: add unit tests and CI workflow [\#34](https://github.com/transitIOM/projectMercury/pull/34) ([Jaycso](https://github.com/Jaycso))
-- Revert "Release v0.2.0 Add live bus tracking, new endpoints, and Docker release workflow" [\#33](https://github.com/transitIOM/projectMercury/pull/33) ([Jaycso](https://github.com/Jaycso))
 - Release v0.2.0 Add live bus tracking, new endpoints, and Docker release workflow [\#32](https://github.com/transitIOM/projectMercury/pull/32) ([Jaycso](https://github.com/Jaycso))
 - Feature/dev 60 [\#31](https://github.com/transitIOM/projectMercury/pull/31) ([Jaycso](https://github.com/Jaycso))
 - Update dev branch [\#28](https://github.com/transitIOM/projectMercury/pull/28) ([Jaycso](https://github.com/Jaycso))
+
+## [v0.2.0](https://github.com/transitIOM/projectMercury/tree/v0.2.0) (2026-01-11)
+
+[Full Changelog](https://github.com/transitIOM/projectMercury/compare/v0.1.1...v0.2.0)
 
 ## [v0.1.1](https://github.com/transitIOM/projectMercury/tree/v0.1.1) (2025-12-31)
 
