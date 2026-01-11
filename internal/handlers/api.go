@@ -12,7 +12,7 @@ import (
 )
 
 // @title           Project Mercury
-// @version         v0.2.0
+// @version         v0.2.1
 // @description     The REST API serving everything needed for the transitIOM app
 // @termsOfService  coming soon
 
