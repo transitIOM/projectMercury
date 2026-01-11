@@ -7,7 +7,10 @@ on:
     paths-ignore:
       - 'CHANGELOG.md'
   workflow_dispatch:
-  workflow_call: # Allow this to be called from other workflows (like docker-publish)
+  workflow_call:
+    secrets:
+      CHANGELOG_PAT:
+        required: true
 
 jobs:
   update:
@@ -30,6 +33,11 @@ jobs:
       - name: Generate Changelog
         run: |
           github_changelog_generator -u transitIOM -p projectMercury --token ${{ secrets.CHANGELOG_PAT }}
+
+      - name: Determine and checkout branch
+        run: |
+          BRANCH_REF="${GITHUB_REF#refs/heads/}"
+          git checkout "$BRANCH_REF"
 
       - name: Commit and Push changes
         run: |
