@@ -13,7 +13,7 @@ import (
 )
 
 // @title           Project Mercury
-// @version         v0.2.1
+// @version         v0.3.0
 // @description     The Project Mercury REST API provides comprehensive transit data services for the transitIOM application, including real-time bus locations, GTFS schedules, and messaging systems.
 // @termsOfService  coming soon
 
