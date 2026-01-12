@@ -1,22 +1,24 @@
-package tools
+package tools_test
 
 import (
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/transitIOM/projectMercury/internal/tools"
 )
 
 func TestParseLocationString(t *testing.T) {
 	tests := []struct {
 		name    string
 		locStr  string
-		want    BusLocation
+		want    tools.BusLocation
 		wantErr bool
 	}{
 		{
 			name:   "valid location string",
 			locStr: "Driver1|Bus1|12:00|Route1|Inbound|54.123|-4.567|2026-01-11T03:55:00Z|1|Extra",
-			want: BusLocation{
+			want: tools.BusLocation{
 				DriverNumber:  "Driver1",
 				BusID:         "Bus1",
 				DepartureTime: "12:00",
@@ -33,32 +35,32 @@ func TestParseLocationString(t *testing.T) {
 		{
 			name:    "invalid format (too few parts)",
 			locStr:  "part1|part2",
-			want:    BusLocation{},
+			want:    tools.BusLocation{},
 			wantErr: true,
 		},
 		{
 			name:    "invalid timestamp",
 			locStr:  "D|B|T|R|D|54| -4|invalid-time|1|E",
-			want:    BusLocation{},
+			want:    tools.BusLocation{},
 			wantErr: true,
 		},
 		{
 			name:    "invalid latitude",
 			locStr:  "D|B|T|R|D|not-float| -4|2026-01-11T03:55:00Z|1|E",
-			want:    BusLocation{},
+			want:    tools.BusLocation{},
 			wantErr: true,
 		},
 		{
 			name:    "invalid longitude",
 			locStr:  "D|B|T|R|D|54|not-float|2026-01-11T03:55:00Z|1|E",
-			want:    BusLocation{},
+			want:    tools.BusLocation{},
 			wantErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := parseLocationString(tt.locStr)
+			got, err := tools.ParseLocationString(tt.locStr)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseLocationString() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -74,13 +76,13 @@ func TestParseBusLocations(t *testing.T) {
 	tests := []struct {
 		name        string
 		responseStr string
-		want        []BusLocation
+		want        []tools.BusLocation
 		wantErr     bool
 	}{
 		{
 			name:        "valid SignalR message",
 			responseStr: `{"type":1,"target":"updateLocations","arguments":[{"locations":["D1|B1|T1|R1|Dir1|54.1|-4.5|2026-01-11T03:55:00Z|1|E1"]}]}`,
-			want: []BusLocation{
+			want: []tools.BusLocation{
 				{
 					DriverNumber:  "D1",
 					BusID:         "B1",
@@ -99,13 +101,13 @@ func TestParseBusLocations(t *testing.T) {
 		{
 			name:        "empty arguments",
 			responseStr: `{"type":1,"target":"updateLocations","arguments":[]}`,
-			want:        []BusLocation{},
+			want:        []tools.BusLocation{},
 			wantErr:     false,
 		},
 		{
 			name:        "wrong message type",
 			responseStr: `{"type":2}`,
-			want:        []BusLocation{},
+			want:        []tools.BusLocation{},
 			wantErr:     false,
 		},
 		{
@@ -118,7 +120,7 @@ func TestParseBusLocations(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := parseBusLocations(tt.responseStr)
+			got, err := tools.ParseBusLocations(tt.responseStr)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseBusLocations() error = %v, wantErr %v", err, tt.wantErr)
 				return

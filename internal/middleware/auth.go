@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var expectedHash string
+var ExpectedHash string
 
 func init() {
 	if err := godotenv.Load(); err != nil {
@@ -20,19 +20,19 @@ func init() {
 	}
 	s, exists := os.LookupEnv("API_KEY_HASH")
 	if exists && s != "" {
-		expectedHash = s
+		ExpectedHash = s
 		return
 	}
 	s, exists = os.LookupEnv("API_KEY")
 	if exists && s != "" {
 		h := crypto.SHA256.New()
 		h.Write([]byte(s))
-		expectedHash = hex.EncodeToString(h.Sum(nil))
+		ExpectedHash = hex.EncodeToString(h.Sum(nil))
 		log.Warn("pre-hashed API key preferred; please update ENV configuration")
 		return
 	}
 	err := errors.New("failed to get API key")
-	log.Fatal(err)
+	log.Warn(err)
 }
 
 func APIKeyAuth(next http.Handler) http.Handler {
@@ -50,7 +50,7 @@ func APIKeyAuth(next http.Handler) http.Handler {
 
 		userHash := hex.EncodeToString(h.Sum(nil))
 
-		if subtle.ConstantTimeCompare([]byte(userHash), []byte(expectedHash)) != 1 {
+		if subtle.ConstantTimeCompare([]byte(userHash), []byte(ExpectedHash)) != 1 {
 			log.Debug("API key hash mismatch")
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			return

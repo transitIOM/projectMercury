@@ -1,4 +1,4 @@
-package middleware
+package middleware_test
 
 import (
 	"crypto"
@@ -6,21 +6,23 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/transitIOM/projectMercury/internal/middleware"
 )
 
 func TestAPIKeyAuth(t *testing.T) {
-	originalHash := expectedHash
+	originalHash := middleware.ExpectedHash
 	testKey := "test-api-key"
 	h := crypto.SHA256.New()
 	h.Write([]byte(testKey))
-	expectedHash = hex.EncodeToString(h.Sum(nil))
-	defer func() { expectedHash = originalHash }()
+	middleware.ExpectedHash = hex.EncodeToString(h.Sum(nil))
+	defer func() { middleware.ExpectedHash = originalHash }()
 
 	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	handlerToTest := APIKeyAuth(nextHandler)
+	handlerToTest := middleware.APIKeyAuth(nextHandler)
 
 	tests := []struct {
 		name           string
