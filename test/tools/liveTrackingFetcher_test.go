@@ -56,6 +56,40 @@ func TestParseLocationString(t *testing.T) {
 			want:    tools.BusLocation{},
 			wantErr: true,
 		},
+		{
+			name:   "valid location with spaces",
+			locStr: " Driver1 | Bus1 | 12:00 | Route1 | Inbound | 54.123 | -4.567 | 2026-01-11T03:55:00Z | 1 | Extra ",
+			want: tools.BusLocation{
+				DriverNumber:  "Driver1",
+				BusID:         "Bus1",
+				DepartureTime: "12:00",
+				RouteNumber:   "Route1",
+				Direction:     "Inbound",
+				Latitude:      54.123,
+				Longitude:     -4.567,
+				Timestamp:     time.Date(2026, 1, 11, 3, 55, 0, 0, time.UTC),
+				Unknown1:      1,
+				Unknown2:      "Extra",
+			},
+			wantErr: false,
+		},
+		{
+			name:   "invalid unknown1 (non-fatal)",
+			locStr: "D1|B1|T1|R1|Dir1|54.1|-4.5|2026-01-11T03:55:00Z|not-an-int|E1",
+			want: tools.BusLocation{
+				DriverNumber:  "D1",
+				BusID:         "B1",
+				DepartureTime: "T1",
+				RouteNumber:   "R1",
+				Direction:     "Dir1",
+				Latitude:      54.1,
+				Longitude:     -4.5,
+				Timestamp:     time.Date(2026, 1, 11, 3, 55, 0, 0, time.UTC),
+				Unknown1:      0, // Falls back to 0
+				Unknown2:      "E1",
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {

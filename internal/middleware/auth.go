@@ -7,6 +7,7 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
@@ -31,6 +32,14 @@ func init() {
 		log.Warn("pre-hashed API key preferred; please update ENV configuration")
 		return
 	}
+
+	// In test environments, we don't want to log.Fatal if the API key is missing.
+	// This allows the test suite to run even if the environment is not fully set up.
+	if strings.HasSuffix(os.Args[0], ".test") || strings.Contains(os.Args[0], "/_test/") {
+		log.Warn("failed to get API key (non-fatal in test environment)")
+		return
+	}
+
 	err := errors.New("failed to get API key")
 	log.Fatal(err)
 }

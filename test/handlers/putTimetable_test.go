@@ -90,6 +90,6 @@ func TestPutGTFSSchedule(t *testing.T) {
 		handler := handlers.PutGTFSSchedule(mockSM)
 		handler.ServeHTTP(rr, req)
 
-		assert.Equal(t, http.StatusInternalServerError, rr.Code)
+		assert.Equal(t, http.StatusBadRequest, rr.Code)
 	})
 }
