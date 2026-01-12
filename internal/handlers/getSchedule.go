@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -26,20 +27,11 @@ func GetScheduleDownloadURL(sm tools.ObjectStorageManager) http.HandlerFunc {
 		downloadURL, versionID, err := sm.GetLatestURL()
 		if err != nil {
 			if errors.Is(err, tools.NoGTFSScheduleFound) {
-				response := api.GetTimetableResponse{
-					Code:        http.StatusNoContent,
-					DownloadURL: "",
-					VersionID:   "",
-				}
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(response.Code)
-				if err = json.NewEncoder(w).Encode(response); err != nil {
-					log.Errorf("Failed to encode response: %v", err)
-				}
+				w.WriteHeader(http.StatusNoContent)
 				return
 			}
 			log.Error(err)
-			api.InternalErrorHandler(w)
+			api.RequestErrorHandler(w, fmt.Errorf("failed to retrieve schedule download URL: %w", err))
 			return
 		}
 

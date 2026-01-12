@@ -60,10 +60,8 @@ func PutMessage(sm tools.ObjectStorageManager) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(response.Code)
-		err = json.NewEncoder(w).Encode(response)
-		if err != nil {
-			log.Error(err)
-			api.InternalErrorHandler(w)
+		if err = json.NewEncoder(w).Encode(response); err != nil {
+			log.Errorf("Failed to encode response: %v", err)
 		}
 	}
 }
