@@ -11,8 +11,8 @@ import (
 )
 
 // PostReport godoc
-// @Summary      Submit a new report
-// @Description  Submits a new report with title, description, email, and category.
+// @Summary      Submit a new issue report
+// @Description  Submits a new report (bug, realtime, or schedule) with title, description, and optional email.
 // @Tags         report
 // @Accept       x-www-form-urlencoded
 // @Produce      json

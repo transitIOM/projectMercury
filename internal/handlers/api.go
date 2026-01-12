@@ -9,11 +9,12 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 	_ "github.com/transitIOM/projectMercury/docs"
 	internalMiddleware "github.com/transitIOM/projectMercury/internal/middleware"
+	"github.com/transitIOM/projectMercury/internal/tools"
 )
 
 // @title           Project Mercury
 // @version         v0.2.1
-// @description     The REST API serving everything needed for the transitIOM app
+// @description     The Project Mercury REST API provides comprehensive transit data services for the transitIOM application, including real-time bus locations, GTFS schedules, and messaging systems.
 // @termsOfService  coming soon
 
 // @contact.name   Jayden Thompson
@@ -28,7 +29,7 @@ import (
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name X-API-Key
-func Handler(r *chi.Mux) {
+func Handler(r *chi.Mux, sm tools.ObjectStorageManager) {
 	r.Use(middleware.Logger)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RequestID)
@@ -49,14 +50,14 @@ func Handler(r *chi.Mux) {
 
 		// public routes
 		r.Group(func(r chi.Router) {
-			r.Get("/version", GetGTFSScheduleVersionID)
-			r.Get("/", GetGTFSScheduleDownloadURL)
+			r.Get("/version", GetScheduleVersionID(sm))
+			r.Get("/", GetScheduleDownloadURL(sm))
 		})
 
 		// private routes
 		r.Group(func(r chi.Router) {
 			r.Use(internalMiddleware.APIKeyAuth)
-			r.Put("/", PutGTFSSchedule)
+			r.Put("/", PutGTFSSchedule(sm))
 		})
 	})
 
@@ -64,13 +65,13 @@ func Handler(r *chi.Mux) {
 		r.Use(httprate.LimitByIP(60, time.Minute))
 		// public routes
 		r.Group(func(r chi.Router) {
-			r.Get("/", GetMessages)
-			r.Get("/version", GetMessageLogVersionID)
+			r.Get("/", GetMessages(sm))
+			r.Get("/version", GetMessageLogVersionID(sm))
 		})
 		// private routes
 		r.Group(func(r chi.Router) {
 			r.Use(internalMiddleware.APIKeyAuth)
-			r.Put("/", PutMessage)
+			r.Put("/", PutMessage(sm))
 		})
 	})
 
