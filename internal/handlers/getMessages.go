@@ -38,17 +38,8 @@ func GetMessages(sm tools.ObjectStorageManager) http.HandlerFunc {
 		if err != nil {
 			if errors.Is(err, tools.NoMessageLogFound) {
 				log.Debug(err)
-				response = api.GetMessagesResponse{
-					Code:      http.StatusNoContent,
-					Messages:  "",
-					VersionID: "",
-				}
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(response.Code)
-				if err = json.NewEncoder(w).Encode(response); err != nil {
-					log.Errorf("Failed to encode response: %v", err)
-				}
-				return
+				w.WriteHeader(http.StatusNoContent)
+				return	
 			}
 			log.Error(err)
 			api.InternalErrorHandler(w)
