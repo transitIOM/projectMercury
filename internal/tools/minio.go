@@ -359,6 +359,10 @@ func (m *MinIOStorageManager) AppendMessage(message *bytes.Buffer) (versionID st
 		log.Debugf("Retrieving existing %s", m.messagingObjectName)
 		r, err := m.client.GetObject(m.ctx, m.messagingBucketName, m.messagingObjectName)
 		if err != nil {
+			if errors.Is(err, KeyNotFound) {
+				log.Debug("No message log found on server")
+				return "", NoMessageLogFound
+			}
 			return "", fmt.Errorf("failed to get existing message log: %w", err)
 		}
 		defer func(r io.ReadCloser) {
@@ -416,6 +420,10 @@ func (m *MinIOStorageManager) GetLatestLog() (messageLog *bytes.Buffer, err erro
 	log.Debugf("Retrieving %s from %s", m.messagingObjectName, m.messagingBucketName)
 	r, err := m.client.GetObject(m.ctx, m.messagingBucketName, m.messagingObjectName)
 	if err != nil {
+		if errors.Is(err, KeyNotFound) {
+			log.Debug("No message log found on server")
+			return nil, NoMessageLogFound
+		}
 		return nil, err
 	}
 	defer func(r io.ReadCloser) {

@@ -30,7 +30,7 @@ func PutGTFSSchedule(sm tools.ObjectStorageManager) http.HandlerFunc {
 		file, fileHeader, err := r.FormFile("GTFSSchedule")
 		if err != nil {
 			log.Errorf("Error getting form file: %v", err)
-			api.InternalErrorHandler(w)
+			api.RequestErrorHandler(w, fmt.Errorf("failed to read GTFSSchedule form file: %w", err))
 			return
 		}
 		log.Debugf("Received file: %s, size: %d", fileHeader.Filename, fileHeader.Size)
