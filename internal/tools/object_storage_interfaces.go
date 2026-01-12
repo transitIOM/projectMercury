@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	KeyNotFound         = "The specified key does not exist."
+	KeyNotFound         = errors.New("the specified key does not exist")
 	NoGTFSScheduleFound = errors.New("no GTFS schedule found")
 	NoMessageLogFound   = errors.New("no message log found")
 )

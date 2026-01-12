@@ -32,7 +32,7 @@ func init() {
 		return
 	}
 	err := errors.New("failed to get API key")
-	log.Warn(err)
+	log.Fatal(err)
 }
 
 func APIKeyAuth(next http.Handler) http.Handler {

@@ -34,7 +34,7 @@ func PutMessage(sm tools.ObjectStorageManager) http.HandlerFunc {
 			return
 		}
 
-		log.Debugf("Received message to store: %s", message)
+		log.Debugf("Received message to store, length: %d", len(message))
 
 		messageObj := tools.NewMessage(message)
 		b := bytes.Buffer{}

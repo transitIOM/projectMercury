@@ -3,6 +3,7 @@ package tools
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -268,7 +269,7 @@ func (m *MinIOStorageManager) GetLatestGTFSVersionID() (versionID string, err er
 	attributes, err := m.client.GetObjectAttributes(m.ctx, m.gtfsBucketName, m.gtfsObjectName)
 	if err != nil {
 		// Check if the error is because the object doesn't exist
-		if err.Error() == KeyNotFound {
+		if errors.Is(err, KeyNotFound) {
 			log.Debug("No GTFS schedule found on server")
 			return "", NoGTFSScheduleFound
 		}
@@ -282,6 +283,9 @@ func (m *MinIOStorageManager) GetLatestGTFSVersionID() (versionID string, err er
 // GetLatestURL returns a presigned URL to download the latest GTFS schedule.
 // The URL is valid for 5 minutes and includes headers to force download with the correct filename.
 func (m *MinIOStorageManager) GetLatestURL() (downloadURL *url.URL, versionID string, err error) {
+	m.gtfsMutex.RLock()
+	defer m.gtfsMutex.RUnlock()
+
 	// Set up presigned URL parameters
 	expiryTime := 5 * time.Minute
 	reqParams := make(url.Values)
@@ -289,9 +293,7 @@ func (m *MinIOStorageManager) GetLatestURL() (downloadURL *url.URL, versionID st
 	reqParams.Set("response-content-type", "application/zip")
 
 	// Generate presigned URL
-	m.gtfsMutex.RLock()
 	downloadURL, err = m.client.PresignedGetObject(m.ctx, m.gtfsBucketName, m.gtfsObjectName, expiryTime, reqParams)
-	m.gtfsMutex.RUnlock()
 
 	if err != nil {
 		if err.Error() == "The specified key does not exist." {
