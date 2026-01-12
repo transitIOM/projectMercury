@@ -296,7 +296,7 @@ func (m *MinIOStorageManager) GetLatestURL() (downloadURL *url.URL, versionID st
 	downloadURL, err = m.client.PresignedGetObject(m.ctx, m.gtfsBucketName, m.gtfsObjectName, expiryTime, reqParams)
 
 	if err != nil {
-		if err.Error() == "The specified key does not exist." {
+		if errors.Is(err, KeyNotFound) {
 			log.Debug("No GTFS schedule found on server")
 			return nil, "", NoGTFSScheduleFound
 		}
@@ -373,10 +373,11 @@ func (m *MinIOStorageManager) AppendMessage(message *bytes.Buffer) (versionID st
 		}
 	} else {
 		// error checking is storage-implementation specific
-		if err.Error() != "The specified key does not exist." {
+		if errors.Is(err, KeyNotFound) {
+			log.Debug("Message log does not exist, starting new one")
+		} else {
 			return "", fmt.Errorf("failed to check message log existence: %w", err)
 		}
-		log.Debug("Message log does not exist, starting new one")
 	}
 
 	// Append the new message
@@ -442,7 +443,7 @@ func (m *MinIOStorageManager) GetLatestMessageVersionID() (versionID string, err
 	log.Debugf("Getting attributes for %s/%s", m.messagingBucketName, m.messagingObjectName)
 	attributes, err := m.client.GetObjectAttributes(m.ctx, m.messagingBucketName, m.messagingObjectName)
 	if err != nil {
-		if err.Error() == "The specified key does not exist." {
+		if errors.Is(err, KeyNotFound) {
 			log.Debug("No message log found on server")
 			return "", NoMessageLogFound
 		}
