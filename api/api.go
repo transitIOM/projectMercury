@@ -15,7 +15,7 @@ type GetVersionIDResponse struct {
 type GetTimetableResponse struct {
 	Code        int    `json:"code" example:"200"`
 	VersionID   string `json:"versionID" example:"20231215-143022"`
-	DownloadURL string `json:"downloadURL" example:"https://example.com/GTFSSchedule.zip"`
+	DownloadURL string `json:"downloadURL" example:"https://example.com/.../GTFSSchedule.zip"`
 }
 
 type PutTimetableResponse struct {

@@ -13,8 +13,8 @@ import (
 )
 
 // PutGTFSSchedule godoc
-// @Summary      Upload a new GTFS schedule
-// @Description  Uploads a new GTFS schedule (zip file).
+// @Summary      Upload a new GTFS schedule package
+// @Description  Uploads a new GTFS schedule zip file to the storage system. Requires API key authentication.
 // @Tags         schedule
 // @Accept       multipart/form-data
 // @Produce      json
@@ -24,51 +24,53 @@ import (
 // @Failure      400  {object}  api.Error
 // @Failure      500  {object}  api.Error
 // @Router       /schedule/ [put]
-func PutGTFSSchedule(w http.ResponseWriter, r *http.Request) {
-	log.Debug("Handling PutGTFSSchedule request")
-	file, fileHeader, err := r.FormFile("GTFSSchedule")
-	if err != nil {
-		log.Errorf("Error getting form file: %v", err)
-		api.InternalErrorHandler(w)
-		return
-	}
-	log.Debugf("Received file: %s, size: %d", fileHeader.Filename, fileHeader.Size)
-	defer func(file multipart.File) {
-		err = file.Close()
+func PutGTFSSchedule(sm tools.ObjectStorageManager) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Debug("Handling PutGTFSSchedule request")
+		file, fileHeader, err := r.FormFile("GTFSSchedule")
+		if err != nil {
+			log.Errorf("Error getting form file: %v", err)
+			api.InternalErrorHandler(w)
+			return
+		}
+		log.Debugf("Received file: %s, size: %d", fileHeader.Filename, fileHeader.Size)
+		defer func(file multipart.File) {
+			err = file.Close()
+			if err != nil {
+				log.Error(err)
+			}
+		}(file)
+		filetype := fileHeader.Header.Get("Content-Type")
+		log.Debugf("File content type: %s", filetype)
+		if (filetype != "application/zip") && (filetype != "application/x-zip-compressed") {
+			err = fmt.Errorf("unsupported file type: %s. Please upload a GTFS schedule .zip package", filetype)
+			api.RequestErrorHandler(w, err)
+			return
+		}
+		if fileHeader.Size == 0 {
+			err = errors.New("file size is zero")
+			api.RequestErrorHandler(w, err)
+			return
+		}
+
+		versionID, err := sm.PutSchedule(file, fileHeader.Size)
 		if err != nil {
 			log.Error(err)
+			api.InternalErrorHandler(w)
+			return
 		}
-	}(file)
-	filetype := fileHeader.Header.Get("Content-Type")
-	log.Debugf("File content type: %s", filetype)
-	if (filetype != "application/zip") && (filetype != "application/x-zip-compressed") {
-		err = fmt.Errorf("unsupported file type: %s. Please upload a GTFS schedule .zip package", filetype)
-		api.RequestErrorHandler(w, err)
-		return
-	}
-	if fileHeader.Size == 0 {
-		err = errors.New("file size is zero")
-		api.RequestErrorHandler(w, err)
-		return
-	}
 
-	versionID, err := tools.PutLatestGTFSSchedule(file, fileHeader.Size)
-	if err != nil {
-		log.Error(err)
-		api.InternalErrorHandler(w)
-		return
-	}
+		response := api.PutTimetableResponse{
+			Code:      http.StatusAccepted,
+			VersionID: versionID,
+		}
 
-	response := api.PutTimetableResponse{
-		Code:      http.StatusAccepted,
-		VersionID: versionID,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(response.Code)
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		log.Error(err)
-		api.InternalErrorHandler(w)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(response.Code)
+		err = json.NewEncoder(w).Encode(response)
+		if err != nil {
+			log.Error(err)
+			api.InternalErrorHandler(w)
+		}
 	}
 }

@@ -10,8 +10,8 @@ import (
 )
 
 // GetBusLocations godoc
-// @Summary      Get current bus locations
-// @Description  Retrieves real-time GPS locations for all active buses.
+// @Summary      Get all current bus locations
+// @Description  Retrieves real-time GPS coordinates and metadata for all active buses on the tracker.
 // @Tags         locations
 // @Produce      json
 // @Success      200  {object}  api.GetBusLocationsResponse

@@ -11,6 +11,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	log "github.com/sirupsen/logrus"
 	"github.com/transitIOM/projectMercury/internal/handlers"
 	"github.com/transitIOM/projectMercury/internal/tools"
@@ -48,13 +50,37 @@ func init() {
 func main() {
 	log.SetReportCaller(true)
 
-	browserCtx, browserCancel := context.WithCancel(context.Background())
-	tools.InitializeMinio()
+	// initialize minio
+	accessKey := os.Getenv("MINIO_ACCESS_KEY")
+	secretKey := os.Getenv("MINIO_SECRET_KEY")
+	endpoint := os.Getenv("MINIO_ENDPOINT")
+
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Secure: false,
+		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+	})
+	if err != nil {
+		log.Fatalf("Failed to create MinIO client: %v", err)
+	}
+
+	storageClient := tools.NewMinIOClient(minioClient)
+
+	ctx := context.Background()
+	storageManager := tools.NewMinIOStorageManager(storageClient, ctx)
+
+	if err := storageManager.Initialize(); err != nil {
+		log.Fatalf("Failed to initialize storage: %v", err)
+	}
+
+	// initialize linear graphql
 	tools.InitialiseLinearGraphqlConnection()
+
+	// initialize browser
+	browserCtx, browserCancel := context.WithCancel(context.Background())
 	go tools.InitializeBrowser(browserCtx)
 
 	r := chi.NewRouter()
-	handlers.Handler(r)
+	handlers.Handler(r, storageManager)
 
 	srv := &http.Server{
 		Addr:    ":8090",

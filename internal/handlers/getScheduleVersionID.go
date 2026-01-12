@@ -10,21 +10,21 @@ import (
 	"github.com/transitIOM/projectMercury/internal/tools"
 )
 
-// GetMessageLogVersionID godoc
-// @Summary      Get the latest message log version ID
-// @Description  Retrieves the unique version identifier for the most recent state of the message log.
-// @Tags         messages
+// GetGTFSScheduleVersionID godoc
+// @Summary      Get the latest GTFS schedule version ID
+// @Description  Retrieves the unique version identifier for the most recently uploaded GTFS schedule.
+// @Tags         schedule
 // @Produce      json
 // @Success      200  {object}  api.GetVersionIDResponse
 // @Failure      500  {object}  api.Error
-// @Router       /messages/version [get]
-func GetMessageLogVersionID(sm tools.ObjectStorageManager) http.HandlerFunc {
+// @Router       /schedule/version [get]
+func GetScheduleVersionID(sm tools.ObjectStorageManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Debug("Handling GetMessageLogVersionID request")
+		log.Debug("Handling GetScheduleVersionID request")
 
-		versionID, err := sm.GetLatestMessageVersionID()
+		versionID, err := sm.GetLatestGTFSVersionID()
 		if err != nil {
-			if errors.Is(err, tools.NoMessageLogFound) {
+			if errors.Is(err, tools.NoGTFSScheduleFound) {
 				w.WriteHeader(http.StatusNoContent)
 				return
 			}
@@ -33,7 +33,7 @@ func GetMessageLogVersionID(sm tools.ObjectStorageManager) http.HandlerFunc {
 			return
 		}
 
-		log.Debugf("Retrieved message log version ID: %s", versionID)
+		log.Debugf("Retrieved schedule version ID: %s", versionID)
 		response := api.GetVersionIDResponse{
 			Code:    http.StatusOK,
 			Version: versionID,
