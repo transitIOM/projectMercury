@@ -304,10 +304,13 @@ func (m *MinIOStorageManager) GetLatestURL() (downloadURL *url.URL, versionID st
 	}
 
 	// Get the version ID
-	versionID, err = m.GetLatestGTFSVersionID()
-	if err != nil {
-		return nil, "", err
+	log.Debugf("Getting attributes for %s/%s", m.gtfsBucketName, m.gtfsObjectName)
+	attributes, err := m.client.GetObjectAttributes(m.ctx, m.gtfsBucketName, m.gtfsObjectName)
+	if errors.Is(err, KeyNotFound) {
+		log.Debug("No GTFS schedule found on server")
+		return nil, "", NoGTFSScheduleFound
 	}
+	versionID = attributes.VersionID
 
 	return downloadURL, versionID, nil
 }
