@@ -31,6 +31,7 @@ func TestPutMessage(t *testing.T) {
 
 	assert.Equal(t, http.StatusAccepted, rr.Code)
 	var resp api.PutMessageResponse
-	json.Unmarshal(rr.Body.Bytes(), &resp)
+	err := json.Unmarshal(rr.Body.Bytes(), &resp)
+	assert.NoError(t, err)
 	assert.Equal(t, versionID, resp.VersionID)
 }
