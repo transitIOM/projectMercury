@@ -98,3 +98,9 @@ func CreateIssueFromReport(ctx context.Context, title, description, email string
 
 	return nil
 }
+
+type LinearReportManager struct{}
+
+func (f *LinearReportManager) CreateIssueFromReport(ctx context.Context, title string, description string, email string, tags []string) error {
+	return CreateIssueFromReport(ctx, title, description, email, tags)
+}

@@ -82,7 +82,7 @@ func Handler(r *chi.Mux, sm tools.ObjectStorageManager) {
 
 	v1.Route("/report", func(r chi.Router) {
 		r.Use(httprate.LimitByIP(2, time.Second*30))
-		r.Post("/", PostReport)
+		r.Post("/", PostReport(&tools.LinearReportManager{}))
 	})
 
 	r.Mount("/v1", v1)

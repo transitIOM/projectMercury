@@ -107,7 +107,7 @@ func updateInMemBusLocations(response string) (err error) {
 			continue
 		}
 
-		busLocations, err := parseBusLocations(msg)
+		busLocations, err := ParseBusLocations(msg)
 		if err != nil {
 			log.Debugf("Error parsing SignalR message: %v. Message: %s", err, msg)
 			continue
@@ -171,7 +171,7 @@ type SignalRArguments struct {
 	Locations []string `json:"locations"`
 }
 
-func parseBusLocations(responseStr string) ([]BusLocation, error) {
+func ParseBusLocations(responseStr string) ([]BusLocation, error) {
 	var response SignalRResponse
 
 	err := json.Unmarshal([]byte(responseStr), &response)
@@ -191,7 +191,7 @@ func parseBusLocations(responseStr string) ([]BusLocation, error) {
 	busLocations := make([]BusLocation, 0, len(locations))
 
 	for _, locStr := range locations {
-		busLoc, err := parseLocationString(locStr)
+		busLoc, err := ParseLocationString(locStr)
 		if err != nil {
 			log.Warnf("Warning: failed to parse location: %s, error: %v\n", locStr, err)
 			continue
@@ -202,7 +202,7 @@ func parseBusLocations(responseStr string) ([]BusLocation, error) {
 	return busLocations, nil
 }
 
-func parseLocationString(locStr string) (BusLocation, error) {
+func ParseLocationString(locStr string) (BusLocation, error) {
 	parts := strings.Split(locStr, "|")
 
 	if len(parts) < 10 {
