@@ -26,10 +26,9 @@ jobs:
         run: go mod download
 
       - name: Install swag
-        run: go install github.com/swaggo/swag/cmd/swag@latest
-        env:
-          GOBIN: /usr/local/go/bin
-          PATH: $PATH:/usr/local/go/bin
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@latest
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
       - name: Generate docs
         run: make docs
