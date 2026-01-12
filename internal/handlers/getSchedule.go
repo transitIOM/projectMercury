@@ -16,6 +16,7 @@ import (
 // @Tags         schedule
 // @Produce      json
 // @Success      200  {object}  api.GetTimetableResponse
+// @Success      204  "No schedule available"
 // @Failure      500  {object}  api.Error
 // @Router       /schedule/ [get]
 func GetScheduleDownloadURL(sm tools.ObjectStorageManager) http.HandlerFunc {
