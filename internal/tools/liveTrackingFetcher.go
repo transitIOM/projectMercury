@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -206,29 +207,35 @@ func ParseLocationString(locStr string) (BusLocation, error) {
 	parts := strings.Split(locStr, "|")
 
 	if len(parts) < 10 {
-		return BusLocation{}, fmt.Errorf("invalid location string format, expected 10 parts, got %d", len(parts))
+		return BusLocation{}, fmt.Errorf("invalid location string format, expected at least 10 parts, got %d", len(parts))
+	}
+
+	// Trim whitespace from all parts
+	for i := range parts {
+		parts[i] = strings.TrimSpace(parts[i])
 	}
 
 	timestamp, err := time.Parse(time.RFC3339, parts[7])
 	if err != nil {
-		return BusLocation{}, fmt.Errorf("failed to parse timestamp: %w", err)
+		return BusLocation{}, fmt.Errorf("failed to parse timestamp '%s': %w", parts[7], err)
 	}
 
-	var lat, lon float64
-	_, err = fmt.Sscanf(parts[5], "%f", &lat)
+	lat, err := strconv.ParseFloat(parts[5], 64)
 	if err != nil {
-		return BusLocation{}, fmt.Errorf("failed to parse latitude: %w", err)
+		return BusLocation{}, fmt.Errorf("failed to parse latitude '%s': %w", parts[5], err)
 	}
 
-	_, err = fmt.Sscanf(parts[6], "%f", &lon)
+	lon, err := strconv.ParseFloat(parts[6], 64)
 	if err != nil {
-		return BusLocation{}, fmt.Errorf("failed to parse longitude: %w", err)
+		return BusLocation{}, fmt.Errorf("failed to parse longitude '%s': %w", parts[6], err)
 	}
 
-	var unknown1 int
-	_, err = fmt.Sscanf(parts[8], "%d", &unknown1)
+	unknown1, err := strconv.Atoi(parts[8])
 	if err != nil {
-		return BusLocation{}, fmt.Errorf("failed to parse unknown1: %w", err)
+		// If it's not an int, we'll log it and set to 0 rather than failing the whole parse
+		// as this field is "Unknown1" and might not be critical.
+		log.Debugf("failed to parse unknown1 integer '%s': %v", parts[8], err)
+		unknown1 = 0
 	}
 
 	return BusLocation{
