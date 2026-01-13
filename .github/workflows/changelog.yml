@@ -12,6 +12,10 @@ on:
       CHANGELOG_PAT:
         required: true
 
+concurrency:
+  group: changelog-update
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -34,10 +38,6 @@ jobs:
         run: |
           github_changelog_generator -u transitIOM -p projectMercury --token ${{ secrets.CHANGELOG_PAT }}
 
-      - name: Determine and checkout branch
-        run: |
-          BRANCH_REF="${GITHUB_REF#refs/heads/}"
-          git checkout "$BRANCH_REF"
 
       - name: Commit and Push changes
         run: |
@@ -48,5 +48,12 @@ jobs:
             echo "No changes to CHANGELOG.md"
           else
             git commit -m "docs: auto-update CHANGELOG.md"
-            git push
+            # Pull to avoid conflicts if another run finished first
+            git pull --rebase origin ${{ github.event.repository.default_branch }}
+            # Push to the branch ref explicitly. If ref_name is a tag, push to main.
+            if [ "${{ github.ref_type }}" = "tag" ]; then
+              git push origin HEAD:${{ github.event.repository.default_branch }}
+            else
+              git push origin HEAD:refs/heads/${{ github.ref_name }}
+            fi
           fi
