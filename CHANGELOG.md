@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased](https://github.com/transitIOM/projectMercury/tree/HEAD)
+
+[Full Changelog](https://github.com/transitIOM/projectMercury/compare/v0.3.0...HEAD)
+
+**Merged pull requests:**
+
+- Tools refactor and greatly improved test coverage [\#35](https://github.com/transitIOM/projectMercury/pull/35) ([Jaycso](https://github.com/Jaycso))
+
+## [v0.3.0](https://github.com/transitIOM/projectMercury/tree/v0.3.0) (2026-01-12)
+
+[Full Changelog](https://github.com/transitIOM/projectMercury/compare/v0.2.1...v0.3.0)
+
 ## [v0.2.1](https://github.com/transitIOM/projectMercury/tree/v0.2.1) (2026-01-11)
 
 [Full Changelog](https://github.com/transitIOM/projectMercury/compare/v0.2.0...v0.2.1)
