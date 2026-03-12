@@ -32,25 +32,12 @@
 
 **Implemented enhancements:**
 
-- Add safety and retry for minio connection [\#10](https://github.com/transitIOM/projectMercury/issues/10)
 - get messages poor feedback fix [\#22](https://github.com/transitIOM/projectMercury/pull/22) ([Jaycso](https://github.com/Jaycso))
 - feature - message broadcasting [\#20](https://github.com/transitIOM/projectMercury/pull/20) ([Jaycso](https://github.com/Jaycso))
 
 **Fixed bugs:**
 
 - Fix message handling: refactor locking, enhance error handling... [\#21](https://github.com/transitIOM/projectMercury/pull/21) ([Jaycso](https://github.com/Jaycso))
-
-**Closed issues:**
-
-- Create github actions workflow for publishing updates [\#12](https://github.com/transitIOM/projectMercury/issues/12)
-- System for logging stops using findmybus.im [\#11](https://github.com/transitIOM/projectMercury/issues/11)
-- Improve Readme.md [\#9](https://github.com/transitIOM/projectMercury/issues/9)
-- Create reporting system using Linear API [\#8](https://github.com/transitIOM/projectMercury/issues/8)
-- Update getTimetableByName [\#7](https://github.com/transitIOM/projectMercury/issues/7)
-- Live updates using GTFS realtime [\#5](https://github.com/transitIOM/projectMercury/issues/5)
-- Add reporting endpoint for user issue reporting using github issues [\#4](https://github.com/transitIOM/projectMercury/issues/4)
-- Add authentication [\#3](https://github.com/transitIOM/projectMercury/issues/3)
-- Finish migration from json to .zip [\#2](https://github.com/transitIOM/projectMercury/issues/2)
 
 **Merged pull requests:**
 
