@@ -14,7 +14,8 @@ docker compose up -f dev-docker-compose.yml
 go run main.go
 ```
 
-This software is deployed on our own infrastructure. It is *NOT* reccomended to deploy it elsewhere without heavy modification for your own usecase.
+> [!WARNING] 
+> This software is deployed on our own infrastructure. It is *NOT* reccomended to deploy it elsewhere without heavy modification for your own usecase.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
