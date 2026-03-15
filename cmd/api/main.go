@@ -3,115 +3,73 @@ package main
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/joho/godotenv"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
-	log "github.com/sirupsen/logrus"
-	"github.com/transitIOM/projectMercury/internal/handlers"
-	"github.com/transitIOM/projectMercury/internal/tools"
+	"github.com/transitIOM/projectMercury/internal/adapters/input"
+	"github.com/transitIOM/projectMercury/internal/adapters/output/cura"
+	"github.com/transitIOM/projectMercury/internal/adapters/output/filesystem"
+	"github.com/transitIOM/projectMercury/internal/adapters/output/linear"
+	"github.com/transitIOM/projectMercury/internal/adapters/output/signalr"
+	"github.com/transitIOM/projectMercury/internal/domain/services"
+	"github.com/transitIOM/projectMercury/internal/infrastructure/config"
 )
 
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Warn("Could not load .env file, using environment variables")
-	}
-
-	// Set log format
-	logFormat := os.Getenv("LOG_FORMAT")
-	if logFormat == "text" {
-		log.SetFormatter(&log.TextFormatter{
-			FullTimestamp: true,
-		})
-	} else {
-		log.SetFormatter(&log.JSONFormatter{})
-	}
-
-	// Set log level
-	logLevelStr := os.Getenv("LOG_LEVEL")
-	if logLevelStr == "" {
-		logLevelStr = "info"
-	}
-	logLevel, err := log.ParseLevel(logLevelStr)
-	if err != nil {
-		log.Warnf("Invalid LOG_LEVEL '%s', defaulting to 'info'", logLevelStr)
-		logLevel = log.InfoLevel
-	}
-	log.SetLevel(logLevel)
-}
-
 func main() {
-	log.SetReportCaller(true)
+	// Configure slog for JSON output
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
 
-	// initialize minio
-	accessKey := os.Getenv("MINIO_ACCESS_KEY")
-	secretKey := os.Getenv("MINIO_SECRET_KEY")
-	endpoint := os.Getenv("MINIO_ENDPOINT")
+	cfg := config.Load()
 
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Secure: false,
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-	})
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	// Initialize Output Adapters
+	gtfsAdapter := filesystem.NewGTFSAdapter(cfg.GTFSFilePath, cfg.MessagesFilePath)
+
+	linearAdapter, err := linear.NewAdapter()
 	if err != nil {
-		log.Fatalf("Failed to create MinIO client: %v", err)
+		slog.Warn("Could not initialize Linear adapter", "error", err)
 	}
 
-	storageClient := tools.NewMinIOClient(minioClient)
+	signalrAdapter := signalr.NewAdapter(ctx, cfg.SignalRExpiry)
+	go signalrAdapter.Start(ctx)
 
-	ctx := context.Background()
-	storageManager := tools.NewMinIOStorageManager(storageClient, ctx)
+	curaAdapter := cura.NewAdapter(cfg.CuraOwner, cfg.CuraRepo, cfg.GTFSFilePath)
 
-	if err := storageManager.Initialize(); err != nil {
-		log.Fatalf("Failed to initialize storage: %v", err)
-	}
+	// Initialize Domain Service
+	transitService := services.NewTransitService(ctx, gtfsAdapter, curaAdapter, signalrAdapter, linearAdapter, gtfsAdapter)
 
-	// initialize linear graphql
-	tools.InitialiseLinearGraphqlConnection()
-
-	// initialize browser
-	browserCtx, browserCancel := context.WithCancel(context.Background())
-	go tools.InitializeBrowser(browserCtx)
-
-	r := chi.NewRouter()
-	handlers.Handler(r, storageManager)
+	// Initialize Input Adapter (Router)
+	r := input.NewRouter(transitService)
 
 	srv := &http.Server{
-		Addr:    ":8090",
+		Addr:    cfg.AppPort,
 		Handler: r,
 	}
 
 	go func() {
-		log.Info("Starting transit-IOMAPI service...")
+		slog.Info("Starting transit-IOMAPI service...", "port", cfg.AppPort)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("listen: %s\n", err)
+			slog.Error("listen error", "error", err)
+			os.Exit(1)
 		}
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server with
-	// a timeout of 5 seconds.
-	quit := make(chan os.Signal, 1)
-	// kill (no param) default send syscall.SIGTERM
-	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall.SIGKILL but can't be caught, so no need to add it
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Info("Shutting down server...")
+	<-ctx.Done()
+	slog.Info("Shutting down server...")
 
-	// The context is used to inform the server it has 5 seconds to finish
-	// the request it is currently handling
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server forced to shutdown: ", err)
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		slog.Error("Server forced to shutdown", "error", err)
+		os.Exit(1)
 	}
-	browserCancel()
 	time.Sleep(100 * time.Millisecond)
-	log.Info("Server exiting")
+	slog.Info("Server exiting")
 }
