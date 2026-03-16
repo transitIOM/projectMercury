@@ -25,6 +25,8 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
+      - uses: extractions/setup-just@v3
+
       - name: Install swag
         run: |
           go install github.com/swaggo/swag/cmd/swag@latest
