@@ -1,6 +1,6 @@
 ![](https://github.com/user-attachments/assets/b6063d8a-04fc-409f-a50b-5003fd40f114)
 
-Mercury is the API serving all schedule and realtime data for the transitIOM app, [Minervra](https://github.com/transitIOM/projectMinerva.git). It serves GTFS schedule ZIP files sourced from [Cura](https://github.com/transitIOM/projectCura), and computes and delivers realtime data based on live location data from [findmybus.im](https://findmybus.im).
+Mercury is the API serving all schedule and realtime data for the transitIOM app, [Minerva](https://github.com/transitIOM/projectMinerva.git). It serves GTFS schedule ZIP files sourced from [Cura](https://github.com/transitIOM/projectCura), and computes and delivers realtime data based on live location data from [findmybus.im](https://findmybus.im).
 
 ## Installation (only recommended for local development)
 For local development clone the repository and install its dependencies. Ensure you have at least [Go 1.25](https://go.dev/doc/go1.25) installed. While defaults are provided, you can also configure your .env file.
