@@ -9,7 +9,7 @@ For local development clone the repository and install its dependencies. Ensure 
 git clone https://github.com/transitIOM/projectMercury.git
 cd projectMercury
 
-go mod install
+go install github.com/swaggo/swag/cmd/swag@latest
 just docs
 just run
 ```
