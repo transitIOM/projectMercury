@@ -78,7 +78,7 @@ func TestSSEHandler(t *testing.T) {
 
 		handler.ServeHTTP(w, req)
 
-		assert.Contains(t, w.Body.String(), "welcome to vehicle-positions stream")
+		assert.Contains(t, w.Body.String(), "joined vehicle-positions stream")
 	})
 
 	t.Run("Subscribe Error", func(t *testing.T) {
